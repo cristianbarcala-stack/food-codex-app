@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#c7a562">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <title>Food Codex - Inicio</title>
+  <script>
+    (() => {
+      const t = localStorage.getItem("app_theme_v1") || "dark";
+      document.documentElement.setAttribute("data-theme", t === "light" ? "light" : "dark");
+    })();
+  </script>
+  <link rel="stylesheet" href="./food-codex-ui.css">
+  <style>
+    .home-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+    .home-card{display:grid;gap:8px}
+    .home-card p{margin:0;color:var(--muted);font-size:12px;line-height:1.35}
+    .go{display:inline-block;text-decoration:none;text-align:center}
+    @media (max-width:980px){.home-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topline">
+      <div class="brand">
+        <h1>Food Codex</h1>
+        <p class="sub">Centro del proyecto</p>
+      </div>
+      <div class="top-actions">
+        <nav class="nav">
+          <a class="active" href="./inicio.html">Inicio</a>
+          <a href="./nutricion.html">Nutricion</a>
+          <a href="./actividades_diarias.html">Actividades</a>
+          <a href="./historial.html">Historial</a>
+        </nav>
+        <button id="themeToggle" class="icon-btn" title="Cambiar tema"></button>
+      </div>
+    </header>
+
+    <section class="panel">
+      <h2>Modulos</h2>
+      <div class="home-grid">
+        <article class="card home-card">
+          <h3>Nutricion</h3>
+          <p>Ingreso rapido de alimentos, cobertura de macros y panel de nutrientes detallado.</p>
+          <a class="btn btn-primary go" href="./nutricion.html">Abrir</a>
+        </article>
+        <article class="card home-card">
+          <h3>Actividades</h3>
+          <p>Carga biometria diaria y actividades para generar memoria JSON del dia.</p>
+          <a class="btn btn-primary go" href="./actividades_diarias.html">Abrir</a>
+        </article>
+        <article class="card home-card">
+          <h3>Historial</h3>
+          <p>Importa varias memorias diarias y exporta CSV maestro para planillas y graficos.</p>
+          <a class="btn btn-primary go" href="./historial.html">Abrir</a>
+        </article>
+      </div>
+      <p class="footer">Tip: desde celular abrilo como PWA y entra a cada modulo desde esta pagina.</p>
+    </section>
+  </main>
+
+  <script>
+    const themeBtn = document.getElementById("themeToggle");
+    function syncThemeButton(){
+      const mode = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+      themeBtn.textContent = "\u25d0";
+      themeBtn.title = mode === "light" ? "Tema claro" : "Tema oscuro";
+    }
+    themeBtn.onclick = () => {
+      const current = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+      const next = current === "light" ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("app_theme_v1", next);
+      syncThemeButton();
+    };
+    syncThemeButton();
+  </script>
+  <script src="./pwa-register.js"></script>
+</body>
+</html>

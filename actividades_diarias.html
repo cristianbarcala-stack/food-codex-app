@@ -1,0 +1,275 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#c7a562">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <title>Food Codex - Actividades</title>
+  <script>
+    (() => {
+      const t = localStorage.getItem("app_theme_v1") || "dark";
+      document.documentElement.setAttribute("data-theme", t === "light" ? "light" : "dark");
+    })();
+  </script>
+  <link rel="stylesheet" href="./food-codex-ui.css">
+  <style>
+    .status-line{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topline">
+      <div class="brand">
+        <h1>Actividades</h1>
+        <p class="sub">Carga diaria y memoria JSON</p>
+      </div>
+      <div class="top-actions">
+        <nav class="nav">
+          <a href="./inicio.html">Inicio</a>
+          <a href="./nutricion.html">Nutricion</a>
+          <a class="active" href="./actividades_diarias.html">Actividades</a>
+          <a href="./historial.html">Historial</a>
+        </nav>
+        <button id="themeToggle" class="icon-btn" title="Cambiar tema"></button>
+      </div>
+    </header>
+
+    <section class="panel">
+      <h2>Biometricos Del Dia</h2>
+      <div class="grid-3">
+        <label>Fecha<input id="bioDate" type="date"></label>
+        <label>Hora levantada<select id="wakeTime"></select></label>
+        <label>Peso al levantarte (kg)<input id="wakeWeight" type="number" step="0.1" value="80"></label>
+      </div>
+      <div class="grid-2">
+        <label>Hora que me dormi<select id="sleepTime"></select></label>
+        <label>Siesta time<select id="siestaTime"></select></label>
+      </div>
+      <div class="status-line">
+        <button id="saveBio" class="btn btn-primary btn-inline">Guardar biometricos</button>
+        <small id="bioStatus" class="tiny"></small>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Cargar Actividad</h2>
+      <div class="grid-3">
+        <label>Fecha<input id="date" type="date"></label>
+        <label>Actividad<select id="type"><option>caminar</option><option>correr</option><option>bailar</option><option>entrenar</option><option>estudiar</option><option>otra</option></select></label>
+        <label>Duracion (min)<input id="dur" type="number" value="30" step="1"></label>
+      </div>
+      <div class="grid-4">
+        <label>Kcal activas<input id="kcal" type="number" value="150" step="1"></label>
+        <label>Pasos<input id="steps" type="number" value="0" step="1"></label>
+        <label>Fuente<select id="source"><option>manual</option><option>reloj</option><option>app-salud</option></select></label>
+        <label>Nota<input id="note" placeholder="opcional"></label>
+      </div>
+      <div class="status-line">
+        <button id="add" class="btn btn-primary btn-inline">Agregar actividad</button>
+        <small id="status" class="tiny"></small>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Eventos Del Dia</h2>
+      <div id="list" class="list"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Cierre Del Dia</h2>
+      <div class="status-line">
+        <button id="saveDay" class="btn btn-primary btn-inline">Guardar memoria del dia</button>
+      </div>
+      <small class="tiny">Genera un JSON completo del dia. Nombre estandar: <b>actividades.export.json</b>.</small>
+    </section>
+  </main>
+
+  <script>
+    const LS_EVENTS = "actividades_builder_v1";
+    const LS_BIO = "actividades_bio_v1";
+    const LS_ACT = "app_activities_v3";
+
+    function normalizeStoredActivities(raw){
+      try{
+        const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+        if (Array.isArray(parsed)) return { events: parsed, biometricos: {} };
+        if (parsed && Array.isArray(parsed.events)) return { events: parsed.events, biometricos: parsed.biometricos || {} };
+      }catch(_){}
+      return { events: [], biometricos: {} };
+    }
+
+    const unified = normalizeStoredActivities(localStorage.getItem(LS_ACT));
+    let events = unified.events.length ? unified.events : JSON.parse(localStorage.getItem(LS_EVENTS) || "[]");
+    let biometricos = Object.keys(unified.biometricos || {}).length ? unified.biometricos : JSON.parse(localStorage.getItem(LS_BIO) || "{}");
+
+    const $ = (id) => document.getElementById(id);
+    const fmt = (v) => Number(v).toFixed(0);
+
+    function syncThemeButton(){
+      const mode = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+      $("themeToggle").textContent = "\u25d0";
+      $("themeToggle").title = mode === "light" ? "Tema claro" : "Tema oscuro";
+    }
+    $("themeToggle").onclick = () => {
+      const current = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+      const next = current === "light" ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("app_theme_v1", next);
+      syncThemeButton();
+    };
+
+    function today(){
+      const d = new Date();
+      const m = String(d.getMonth()+1).padStart(2,"0");
+      const day = String(d.getDate()).padStart(2,"0");
+      return `${d.getFullYear()}-${m}-${day}`;
+    }
+
+    function saveUnified(){
+      localStorage.setItem(LS_ACT, JSON.stringify({ events, biometricos }));
+    }
+    function save(){
+      localStorage.setItem(LS_EVENTS, JSON.stringify(events));
+      saveUnified();
+    }
+    function saveBio(){
+      localStorage.setItem(LS_BIO, JSON.stringify(biometricos));
+      saveUnified();
+    }
+
+    function render(){
+      $("list").innerHTML = events.length
+        ? events.slice().reverse().map((e) => `
+          <div class="item">
+            <div>
+              <b>${e.activity_type}</b>
+              <div class="meta">${e.date} | ${e.duration_min} min | ${e.kcal_active} kcal | ${(Number(e.steps) || 0)} pasos</div>
+              <div class="meta">${e.source}${e.note ? " | " + e.note : ""}</div>
+            </div>
+            <button class="btn btn-ghost btn-inline" onclick="delEvt('${e.id}')">Eliminar</button>
+          </div>`).join("")
+        : `<span class="tiny">Sin actividades cargadas.</span>`;
+      const total = events.reduce((a,e)=>a+(Number(e.kcal_active)||0),0);
+      const totalSteps = events.reduce((a,e)=>a+(Number(e.steps)||0),0);
+      $("status").textContent = `Eventos: ${events.length} | Kcal activas totales: ${fmt(total)} | Pasos totales: ${fmt(totalSteps)}`;
+      $("bioStatus").textContent = biometricos.date
+        ? `Bio guardados: ${biometricos.date} | Levantada: ${biometricos.wake_time || "-"} | Siesta: ${biometricos.siesta_time || "-"} | Dormi: ${biometricos.sleep_time || "-"} | Peso: ${biometricos.wake_weight_kg || "-"} kg`
+        : "Sin biometricos guardados.";
+    }
+
+    function add(){
+      const e = {
+        id: `evt_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,
+        date: $("date").value || today(),
+        activity_type: $("type").value,
+        duration_min: Number($("dur").value) || 0,
+        kcal_active: Number($("kcal").value) || 0,
+        steps: Number($("steps").value) || 0,
+        source: $("source").value || "manual",
+        note: $("note").value || ""
+      };
+      events.push(e);
+      save();
+      render();
+    }
+
+    function delEvt(id){ events = events.filter((x) => x.id !== id); save(); render(); }
+    window.delEvt = delEvt;
+
+    function download(filename, text, type){
+      const blob = new Blob([text], {type});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function buildJsonPayload(){
+      return {
+        version: "1.1",
+        date: today(),
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Argentina/Buenos_Aires",
+        source_app: "actividades_diarias.html",
+        biometricos,
+        events
+      };
+    }
+
+    async function saveDayMemory(){
+      const payload = buildJsonPayload();
+      const day = biometricos.date || today();
+      const preferred = "actividades.export.json";
+      const fallback = "actividades.export.json";
+      const jsonText = JSON.stringify(payload, null, 2);
+
+      if (window.showSaveFilePicker) {
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName: preferred,
+            types: [{ description: "JSON", accept: { "application/json": [".json"] } }]
+          });
+          const writable = await handle.createWritable();
+          await writable.write(jsonText);
+          await writable.close();
+          $("status").textContent = `Memoria guardada: ${day}`;
+          return;
+        } catch (err) {
+          if (err && err.name === "AbortError") return;
+        }
+      }
+
+      download(fallback, jsonText, "application/json");
+      $("status").textContent = `Memoria guardada: ${day}`;
+    }
+
+    function saveBiometricosForm(){
+      biometricos = {
+        date: $("bioDate").value || today(),
+        wake_time: $("wakeTime").value || "",
+        siesta_time: $("siestaTime").value || "",
+        sleep_time: $("sleepTime").value || "",
+        wake_weight_kg: Number($("wakeWeight").value) || 0
+      };
+      saveBio();
+      render();
+    }
+
+    function fillTimeOptions(selectId, includeEmpty=false){
+      const sel = $(selectId);
+      const opts = [];
+      if (includeEmpty) opts.push('<option value="">-</option>');
+      for(let h=0; h<24; h++){
+        for(let m=0; m<60; m+=15){
+          const hh = String(h).padStart(2, "0");
+          const mm = String(m).padStart(2, "0");
+          const v = `${hh}:${mm}`;
+          opts.push(`<option value="${v}">${v}</option>`);
+        }
+      }
+      sel.innerHTML = opts.join("");
+    }
+
+    $("date").value = today();
+    fillTimeOptions("wakeTime");
+    fillTimeOptions("sleepTime");
+    fillTimeOptions("siestaTime", true);
+    $("bioDate").value = biometricos.date || today();
+    $("wakeTime").value = biometricos.wake_time || "07:00";
+    $("sleepTime").value = biometricos.sleep_time || "23:00";
+    $("siestaTime").value = biometricos.siesta_time || "";
+    $("wakeWeight").value = biometricos.wake_weight_kg || 80;
+    $("add").onclick = add;
+    $("saveBio").onclick = saveBiometricosForm;
+    $("saveDay").onclick = saveDayMemory;
+    saveUnified();
+    syncThemeButton();
+    render();
+  </script>
+  <script src="./pwa-register.js"></script>
+</body>
+</html>
+

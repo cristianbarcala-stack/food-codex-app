@@ -1,0 +1,1568 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#c7a562">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <title>App Pa Cocinar y Crecer</title>
+  <style>
+    :root { --bg:#0a0a0b; --panel:#101012; --ink:#ece9e2; --muted:#8b877e; --gold:#baa06a; --line:rgba(186,160,106,.14); --input-bg:#0c0c0d; --surface:#0f0f10; --subtle:#171718; --soft:#101011; --danger:#3c1515; --danger-line:#6e2b2b; --danger-ink:#f2caca; --macro-grad-end:#0f0f10; --profile-strong:#efe2c5; --target-strong:#d8ccb1; --shelf-bg:#060607; --option-bg:#0a0a0b; --option-ink:#ece9e2; }
+    :root[data-theme="light"] { --bg:#f5f3ed; --panel:#fcfaf4; --ink:#24211a; --muted:#6e685b; --gold:#84662f; --line:rgba(132,102,47,.18); --input-bg:#f3eee3; --surface:#f8f4ea; --subtle:#ece4d4; --soft:#f2ecdf; --danger:#f5dede; --danger-line:#cda0a0; --danger-ink:#722a2a; --macro-grad-end:#f8f4ea; --profile-strong:#2e281c; --target-strong:#4a3f2b; --shelf-bg:#f7f2e7; --option-bg:#fffdf7; --option-ink:#24211a; }
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:Segoe UI,Arial,sans-serif}
+    .wrap{max-width:1160px;margin:0 auto;padding:10px;display:grid;gap:8px;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+    .box{background:var(--panel);border:1px solid var(--line);padding:8px}
+    h2{margin:0 0 6px;font-size:10px;letter-spacing:.8px;color:var(--gold);text-transform:uppercase;border-bottom:1px solid var(--line);padding-bottom:3px}
+    label{display:block;font-size:10px;color:var(--muted);margin-bottom:5px}
+    input,select,button{width:100%;padding:6px 7px;color:var(--ink);margin-top:2px;min-height:32px;font-size:12px}
+    input,select{background:transparent;border:1px solid rgba(186,160,106,.12)}
+    select option{background:var(--option-bg);color:var(--option-ink)}
+    button{cursor:pointer;background:transparent;border:1px solid rgba(186,160,106,.16)}
+    input:focus,select:focus{outline:none;border-color:rgba(186,160,106,.38)}
+    .btn-main{background:transparent;color:var(--gold);font-weight:700;border:1px solid rgba(186,160,106,.28)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+    .olla{display:grid;gap:6px;max-height:230px;overflow:auto}
+    .it{display:flex;justify-content:space-between;gap:6px;border:1px solid var(--line);padding:3px 5px;background:var(--surface);font-size:11px}
+    .it small{display:block;color:var(--muted);font-size:10px}
+    .del{width:auto;padding:4px 8px;background:#2a1111;border:1px solid #5f3535;color:#d69f9f}
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+    .card{border:1px solid var(--line);padding:6px;background:var(--surface)}
+    .card .k{font-size:10px;color:var(--muted)} .card .v{font-size:16px;color:var(--gold);font-weight:700}
+    .cards .card.macro{padding:8px;border-width:1px}
+    .cards .card.macro .k{font-size:12px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;margin-bottom:4px}
+    .cards .card.macro.kcal{border-color:rgba(255,188,86,.35);background:var(--surface)}
+    .cards .card.macro.protein{border-color:rgba(88,180,255,.35);background:var(--surface)}
+    .cards .card.macro.carbs{border-color:rgba(131,224,124,.35);background:var(--surface)}
+    .cards .card.macro.kcal .k{color:#ffcb84}
+    .cards .card.macro.protein .k{color:#8bc9ff}
+    .cards .card.macro.carbs .k{color:#9aee9a}
+    .cards .card.macro .metric .meta span{font-size:13px;font-weight:700;color:var(--ink)}
+    .cards .card.macro .metric .meta{justify-content:flex-start}
+    .cards .card.macro .metric .meta b{font-size:11px;color:var(--ink);font-weight:700}
+    .cards .card.macro .metric .tiny{font-size:11px}
+    .macro-strip{margin:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:10px;color:var(--muted)}
+    .macro-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border:1px solid var(--line);background:var(--surface)}
+    .macro-pill .k{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+    .macro-pill b{color:var(--profile-strong);font-weight:800;font-size:11px}
+    .macro-head-right{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:6px}
+    .sections{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+    .folds{display:grid;gap:6px}
+    .fold{border:1px solid var(--line);background:var(--surface)}
+    .fold summary{list-style:none;cursor:pointer;padding:6px 8px;color:var(--gold);font-size:10px;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;justify-content:space-between}
+    .fold summary::-webkit-details-marker{display:none}
+    .fold summary::after{content:"+";color:var(--muted);font-size:12px}
+    .fold[open] summary::after{content:"-"}
+    .fold-body{padding:6px;border-top:1px dashed var(--line)}
+    .metric{margin-bottom:5px}
+    .meta{display:flex;justify-content:space-between;align-items:center;font-size:9px;color:var(--muted);line-height:1.2;gap:6px} .meta b{color:var(--gold)}
+    .meta span{font-size:11px;font-weight:700;color:var(--ink)}
+    .metric-right{display:inline-flex;align-items:center;gap:4px;min-width:0}
+    .bar-inline{position:relative;display:inline-flex;align-items:stretch;width:72px;height:14px;border:1px solid var(--line);background:var(--subtle);overflow:hidden;flex-shrink:0}
+    .bar-inline.bar-inline-wide{width:100%;height:11px;margin-top:3px}
+    .bar-inline-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--ink);text-shadow:0 0 2px rgba(0,0,0,.55);pointer-events:none}
+    .seg{height:100%}
+    .tiny{display:block;margin-top:2px;color:var(--muted);font-size:10px}
+    .legend{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 0}
+    .dot{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:middle}
+    .mtor-inline{display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border:1px solid var(--line);background:var(--surface);font-size:10px;color:var(--muted)}
+    .mtor-inline b{font-size:11px}
+    .mtor-inline .state.on{color:#6fa785}
+    .mtor-inline .state.off{color:#ff8f8f}
+    .mtor-detail{margin:4px 0 6px;padding:6px;border:1px dashed var(--line);background:var(--soft);font-size:10px;line-height:1.3;color:var(--muted)}
+    .mtor-detail b{color:var(--profile-strong)}
+    .global-nav{max-width:1160px;margin:6px auto 0;padding:0 10px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+    .global-nav .brand{font-size:12px;color:var(--gold);font-weight:700;letter-spacing:.3px}
+    .global-nav .links{display:flex;gap:4px;flex-wrap:wrap}
+    .global-nav a{text-decoration:none;color:var(--muted);font-size:11px;padding:2px 6px;border:1px solid transparent}
+    .global-nav a:hover{border-color:var(--line);color:var(--ink)}
+    .global-nav a.active{color:var(--gold);border-color:var(--line);background:var(--surface)}
+    .topline{max-width:1160px;margin:6px auto 0;padding:0 10px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+    .top-left,.top-right{display:flex;gap:8px;align-items:center}
+    .top-left{gap:3px;flex:1 1 auto;min-width:0;flex-wrap:nowrap}
+    .top-right{gap:4px;flex:0 1 auto;flex-wrap:wrap;justify-content:flex-end}
+    .top-group{display:inline-flex;align-items:center;gap:0}
+    .lang-group{display:inline-flex;align-items:center;gap:0}
+    .top-title{font-size:12px;color:var(--gold);font-weight:700;letter-spacing:.4px}
+    .topline .sep{color:var(--muted);font-size:10px}
+    .topline button{width:auto;padding:1px 2px;font-size:11px;background:transparent;border:none;color:var(--muted);min-height:auto}
+    .topline .active{color:var(--gold);font-weight:700}
+    .status-pill{font-size:11px;color:var(--muted)}
+    .status-pill.ok{color:#6fa785}
+    .status-pill.err{color:#ff8f8f}
+    .status-pill.neutral{color:var(--muted)}
+    .top-profile{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+    .top-profile b{color:var(--profile-strong);font-weight:800}
+    .top-target{font-size:11px;color:var(--muted)}
+    .top-target b{color:var(--target-strong)}
+    .h2row{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
+    .h2row .actions{display:flex;align-items:center;gap:6px}
+    .h2row h2{margin:0;border-bottom:none;padding-bottom:0}
+    .btn-quiet{width:auto;min-height:auto;padding:2px 6px;font-size:10px;background:transparent;border:1px solid var(--line);color:var(--muted)}
+    .icon-btn{width:auto;min-height:auto;padding:1px 1px;font-size:11px;line-height:1;background:transparent;border:none;color:var(--muted)}
+    #themeToggle{padding:1px 4px;font-size:12px;border:1px solid rgba(186,160,106,.34);background:rgba(186,160,106,.08);color:var(--gold)}
+    #themeToggle:hover{background:rgba(186,160,106,.16)}
+    .profile-line{font-size:12px;color:var(--ink);margin-bottom:6px}
+    .profile-line .k{color:var(--muted);font-size:10px;text-transform:uppercase;margin-right:4px}
+    .profile-line b{font-weight:800;color:var(--profile-strong)}
+    .profile-actions{display:grid;grid-template-columns:44px 1fr;gap:8px;margin-bottom:6px}
+    .advanced{border:1px solid var(--line);padding:6px;background:var(--soft);margin-bottom:5px}
+    .hidden{display:none}
+    .danger{background:var(--danger);border-color:var(--danger-line);color:var(--danger-ink)}
+    .day-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+    .archive-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+    .db-inline{display:flex;align-items:center;gap:8px}
+    .btn-mini{width:auto;min-height:auto;padding:4px 8px;font-size:11px}
+    .row-add{display:grid;grid-template-columns:1fr 1fr 90px;gap:6px;align-items:end}
+    .search-row{display:grid;grid-template-columns:1fr 30px;gap:5px;align-items:end}
+    .search-row input{margin-top:0}
+    .search-icon{width:28px;min-height:28px;padding:0;border:1px solid rgba(186,160,106,.16);background:transparent;color:var(--muted);font-size:11px;line-height:1}
+    .search-icon.active{color:var(--gold);border-color:rgba(199,165,98,.55)}
+    .shelf{max-height:170px;overflow:auto;border:1px solid var(--line);background:var(--shelf-bg);padding:4px}
+    .zone-label{display:block;margin:4px 0 3px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+    .shelf-item{padding:4px 6px;font-size:11px;color:var(--ink);cursor:pointer;display:flex;justify-content:space-between;gap:8px}
+    .shelf-item:hover{background:rgba(199,165,98,.08)}
+    .shelf-item.active{outline:1px solid rgba(199,165,98,.35)}
+    .shelf-item small{color:var(--muted)}
+    .fav-btn{width:auto;min-height:auto;padding:0 2px;font-size:13px;background:transparent;border:none;color:var(--muted);line-height:1;vertical-align:middle}
+    .fav-btn.active{color:var(--gold)}
+    .warn-list{margin:0;padding-left:18px}
+    .warn-list li{margin:4px 0;color:var(--muted);font-size:12px}
+    .warn-list li strong{color:#ffd28c}
+    .metric.clickable{cursor:pointer}
+    .metric.clickable:hover{outline:1px solid rgba(199,165,98,.35)}
+    .food-detail{border:1px solid var(--line);padding:5px;background:var(--surface);margin-top:5px}
+    .food-detail h3{margin:0 0 6px;font-size:12px;color:var(--gold);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .detail-mode-row{margin-top:6px}
+    .detail-head{display:flex;align-items:center;justify-content:space-between;gap:6px}
+    .mode-inline{display:inline-flex;align-items:center;gap:4px}
+    .mode-toggle{width:auto;min-height:auto;padding:1px 5px;font-size:11px;background:transparent;border:1px solid var(--line);color:var(--muted)}
+    .qty-box{width:88px;min-width:88px;text-align:center}
+    .qty-inline{width:auto;min-height:24px;padding:2px 5px;font-size:11px;border:1px solid rgba(186,160,106,.16);background:transparent;color:var(--ink)}
+    .detail-add-top{width:auto;min-height:auto;padding:2px 8px;font-size:11px;background:transparent;border:1px solid rgba(186,160,106,.28);color:var(--gold)}
+    .mini-toggle{width:auto;min-height:auto;padding:2px 6px;font-size:12px;background:transparent;border:1px solid var(--line);color:var(--muted);margin-left:6px}
+    .food-mode{border-top:1px dashed var(--line);padding-top:6px;margin-top:6px}
+    .food-mode:first-of-type{border-top:none;padding-top:0;margin-top:0}
+    .food-mode b{color:var(--gold)}
+    .food-list{margin:6px 0 0 16px;padding:0}
+    .food-list li{margin-bottom:3px;color:var(--muted);font-size:10px;line-height:1.25}
+    .food-list strong{color:var(--ink)}
+    @media (max-width:980px){
+      .wrap{grid-template-columns:1fr 1fr;padding:8px;gap:8px}
+      .cards,.sections,.row,.row3{grid-template-columns:1fr}
+      .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .macro-head-right{justify-content:flex-start}
+      .topline{padding:0 10px;flex-direction:row;align-items:flex-start}
+      .top-right{gap:3px}
+      .topline button{min-height:22px;padding:2px 5px}
+      .box{padding:10px}
+      h2{font-size:12px}
+      .cards .card.macro .k{font-size:14px}
+      .cards .card.macro .metric .meta span{font-size:14px}
+      .cards .card.macro .metric .meta b{font-size:12px}
+      .profile-line{font-size:13px;line-height:1.4}
+      .profile-actions{grid-template-columns:1fr}
+      .meta{font-size:11px;gap:8px;flex-wrap:wrap}
+      .tiny{font-size:11px}
+      .it{padding:8px}
+      #olla{max-height:220px}
+      .day-actions{grid-template-columns:1fr}
+      .archive-actions{grid-template-columns:1fr}
+      .row-add{grid-template-columns:1fr}
+      .search-row{grid-template-columns:1fr 40px}
+      .search-icon{width:34px;min-height:34px}
+      .qty-box{width:100%;min-width:0}
+    }
+  </style>
+</head>
+<body>
+  <div class="global-nav">
+    <span class="brand">Food Codex</span>
+    <div class="links">
+      <a href="./inicio.html">Inicio</a>
+      <a class="active" href="./nutricion.html">Nutricion</a>
+      <a href="./actividades_diarias.html">Actividades</a>
+      <a href="./historial.html">Historial</a>
+    </div>
+  </div>
+  <div class="topline">
+    <div class="top-left">
+      <button id="themeToggle" class="icon-btn" title="Cambiar tema">&#9681;</button>
+      <span class="top-title">Perfil</span>
+      <button id="toggleAdvanced" class="icon-btn" title="Ajustes">&#9881;</button>
+      <span id="profileLine" class="top-profile"></span>
+    </div>
+    <div class="top-right">
+      <span class="top-group">
+        <span id="actStatus" class="status-pill neutral">Act</span>
+        <button id="refreshAct" class="icon-btn" title="Actualizar kcal/peso">&#8635;</button>
+      </span>
+      <span class="top-group">
+        <span id="dbStatus" class="status-pill neutral">Base</span>
+        <button id="recargarDB" class="icon-btn" title="Cargar base de datos">&#8721;</button>
+      </span>
+      <span class="lang-group">
+        <button id="langEs">ES</button>
+        <button id="langEn">EN</button>
+      </span>
+    </div>
+  </div>
+  <div class="wrap">
+    <section class="box">
+      <div id="advancedBox" class="advanced hidden">
+        <div class="row3">
+          <label>Peso (kg)<input id="peso" type="number" value="80" step="0.1"></label>
+          <label>Altura (cm)<input id="altura" type="number" value="175" step="1"></label>
+          <label>Edad<input id="edad" type="number" value="30" step="1"></label>
+        </div>
+        <div class="row">
+          <label>Sexo<select id="sexo"><option value="m">Masculino</option><option value="f">Femenino</option></select></label>
+          <label>Fase<select id="fase"><option value="hipertrofia">Hipertrofia</option><option value="mantenimiento">Mantenimiento</option><option value="definicion">Definicion</option></select></label>
+        </div>
+        <button id="guardarPerfil" class="btn-main">Guardar Perfil</button>
+      </div>
+      <div class="search-row">
+        <input id="buscar" placeholder="">
+        <button id="clearFilter" class="search-icon" title="Limpiar filtro">x</button>
+      </div>
+      <small id="nutriStatus" class="tiny"></small>
+      <small id="alacenaLabel" class="zone-label hidden">Alacena</small>
+      <div id="foodShelf" class="shelf hidden"></div>
+      <small class="zone-label">Detalle</small>
+      <div id="foodDetail" class="food-detail"></div>
+
+      <h2>Olla Del Dia</h2>
+      <div id="olla" class="olla"></div>
+    </section>
+
+    <section class="box">
+      <div class="h2row">
+        <h2>Macros Principales</h2>
+        <div class="macro-head-right">
+          <div id="macroMeta" class="macro-strip"></div>
+          <div id="mtorInline" class="mtor-inline"></div>
+        </div>
+      </div>
+      <div id="mtorDetail" class="mtor-detail hidden"></div>
+      <div id="cards" class="cards"></div>
+      <div class="folds">
+        <details class="fold">
+          <summary>Alertas</summary>
+          <div class="fold-body"><div id="alerts" class="food-detail"></div></div>
+        </details>
+        <details class="fold">
+          <summary>Aminoacidos</summary>
+          <div class="fold-body"><div id="aminoBox" class="metric-grid"></div></div>
+        </details>
+        <details class="fold">
+          <summary>Micros</summary>
+          <div class="fold-body"><div id="microBox" class="metric-grid"></div></div>
+        </details>
+        <details class="fold">
+          <summary>Vitaminas y minerales extra</summary>
+          <div class="fold-body"><div id="extraBox" class="metric-grid"></div></div>
+        </details>
+        <details class="fold">
+          <summary>Cierre y respaldo</summary>
+          <div class="fold-body">
+            <div class="day-actions">
+              <button id="closeDay" class="btn-main">Cerrar dia</button>
+              <button id="saveDay">Guardar dia</button>
+            </div>
+            <div class="archive-actions">
+              <button id="exportAllJson">Exportar historial JSON</button>
+              <button id="exportAllCsv">Exportar historial CSV</button>
+            </div>
+            <div class="archive-actions">
+              <button id="limpiar" class="danger">Reset Dia</button>
+            </div>
+            <small id="dataStatus" class="tiny">Al cerrar el dia: guarda en storage y descarga JSON de respaldo.</small>
+          </div>
+        </details>
+      </div>
+
+    </section>
+  </div>
+
+  <script src="./alimentos.base.es.bundle.js"></script>
+  <script>
+    const LS_PROFILE = "app_profile_v3";
+    const LS_LOG = "app_log_v3";
+    const LS_DB = "app_db_v3";
+    const LS_ACT = "app_activities_v3";
+    const LS_LANG = "app_ui_lang_v1";
+    const LS_FAV = "app_fav_foods_v1";
+    const LS_ARCHIVE = "app_day_archive_v1";
+    const LS_THEME = "app_theme_v1";
+
+    let DB = [];
+    let perfil = JSON.parse(localStorage.getItem(LS_PROFILE) || '{"peso":80,"altura":175,"edad":30,"sexo":"m","fase":"hipertrofia"}');
+    let log = JSON.parse(localStorage.getItem(LS_LOG) || "[]");
+    let activityData = normalizeStoredActivities(localStorage.getItem(LS_ACT));
+    let activities = activityData.events;
+    let dayBio = activityData.biometricos;
+    let uiLang = localStorage.getItem(LS_LANG) || "es";
+    let nutrientFilterKey = "";
+    let favIds = JSON.parse(localStorage.getItem(LS_FAV) || "[]");
+    let uiTheme = localStorage.getItem(LS_THEME) || "dark";
+    let foodDetailExpanded = false;
+    let mtorExpanded = false;
+
+    const AMINO_COEF = { leu:80, lys:70, met:25, val:50, iso:45, phe:45, thr:40, trp:12, his:25 };
+    const DEF_TARGETS = {
+      p:1.8, c:3.0, g:0.9, f:30, fe:18, mg:420, zn:11, pot:4700, na:2300, vitc:90,
+      creat:3000, ca:1000, phos:700, sel:55, cu:0.9, mn:2.3, iod:150,
+      vita:900, vitd:15, vite:15, vitk:120, b1:1.2, b2:1.3, b3:16, b6:1.7, b12:2.4, fol:400,
+      sugar:50, sat:20, mono:45, poly:20, chol:300, caf:400, water:3000
+    };
+    const NUTRIENT_DEFS = [
+      { key:"kcal", es:"kcal", en:"calories", aliases:["calorias","calorias activas","energia","energy"] },
+      { key:"p", es:"proteina", en:"protein", aliases:["proteinas","protein"] },
+      { key:"c", es:"carbohidratos", en:"carbohydrates", aliases:["carbos","hidratos","carbohydrates","carbs"] },
+      { key:"g", es:"grasas", en:"fats", aliases:["grasa","fat","fats","lipidos"] },
+      { key:"f", es:"fibra", en:"fiber", aliases:["fiber","fibre"] },
+      { key:"fe", es:"hierro", en:"iron", aliases:["iron","fierro"] },
+      { key:"mg", es:"magnesio", en:"magnesium", aliases:["magnesium"] },
+      { key:"zn", es:"zinc", en:"zinc", aliases:["zinc"] },
+      { key:"pot", es:"potasio", en:"potassium", aliases:["potassium","k"] },
+      { key:"na", es:"sodio", en:"sodium", aliases:["sodium","sal"] },
+      { key:"vitc", es:"vitamina c", en:"vitamin c", aliases:["vit c","ascorbico","ascorbic"] },
+      { key:"creat", es:"creatina", en:"creatine", aliases:["creatine"] },
+      { key:"ca", es:"calcio", en:"calcium", aliases:["calcium"] },
+      { key:"phos", es:"fosforo", en:"phosphorus", aliases:["phosphorus","phos"] },
+      { key:"sel", es:"selenio", en:"selenium", aliases:["selenium"] },
+      { key:"cu", es:"cobre", en:"copper", aliases:["copper"] },
+      { key:"mn", es:"manganeso", en:"manganese", aliases:["manganese"] },
+      { key:"iod", es:"yodo", en:"iodine", aliases:["iodine","iodo"] },
+      { key:"vita", es:"vitamina a", en:"vitamin a", aliases:["retinol"] },
+      { key:"vitd", es:"vitamina d", en:"vitamin d", aliases:["vit d"] },
+      { key:"vite", es:"vitamina e", en:"vitamin e", aliases:["vit e"] },
+      { key:"vitk", es:"vitamina k", en:"vitamin k", aliases:["vit k"] },
+      { key:"b1", es:"vitamina b1", en:"vitamin b1", aliases:["tiamina","thiamine"] },
+      { key:"b2", es:"vitamina b2", en:"vitamin b2", aliases:["riboflavina","riboflavin"] },
+      { key:"b3", es:"vitamina b3", en:"vitamin b3", aliases:["niacina","niacin"] },
+      { key:"b6", es:"vitamina b6", en:"vitamin b6", aliases:["pyridoxine"] },
+      { key:"b12", es:"vitamina b12", en:"vitamin b12", aliases:["cobalamina","cobalamin"] },
+      { key:"fol", es:"folato", en:"folate", aliases:["folic acid","acido folico"] },
+      { key:"sugar", es:"azucares", en:"sugars", aliases:["azucar","sugar","sugars"] },
+      { key:"sat", es:"grasa saturada", en:"saturated fat", aliases:["saturadas","saturated fat","sat fat"] },
+      { key:"mono", es:"grasa monoinsaturada", en:"monounsaturated fat", aliases:["monoinsaturada","mono fat","monounsaturated"] },
+      { key:"poly", es:"grasa poliinsaturada", en:"polyunsaturated fat", aliases:["poliinsaturada","poly fat","polyunsaturated"] },
+      { key:"chol", es:"colesterol", en:"cholesterol", aliases:["cholesterol"] },
+      { key:"caf", es:"cafeina", en:"caffeine", aliases:["cafeina","caffeine"] },
+      { key:"water", es:"agua", en:"water", aliases:["hydration","water"] },
+      { key:"leu", es:"leucina", en:"leucine", aliases:["leucine"] },
+      { key:"lys", es:"lisina", en:"lysine", aliases:["lysine"] },
+      { key:"met", es:"metionina", en:"methionine", aliases:["methionine"] },
+      { key:"val", es:"valina", en:"valine", aliases:["valine"] },
+      { key:"iso", es:"isoleucina", en:"isoleucine", aliases:["isoleucine"] },
+      { key:"phe", es:"fenilalanina", en:"phenylalanine", aliases:["phenylalanine"] },
+      { key:"thr", es:"treonina", en:"threonine", aliases:["threonine"] },
+      { key:"trp", es:"triptofano", en:"tryptophan", aliases:["tryptophan"] },
+      { key:"his", es:"histidina", en:"histidine", aliases:["histidine"] }
+    ];
+
+    const $ = (id) => document.getElementById(id);
+    const buscar = $("buscar");
+    let currentFoodId = "";
+    let foodNameToId = {};
+    let selectedMode = "";
+    let selectedQty = 100;
+    let modePickerOpen = false;
+    let shelfShowAll = false;
+    let shelfQueryKey = "";
+
+    function setStatus(id,msg){ $(id).textContent = msg; }
+    const canHover = () => window.matchMedia && window.matchMedia("(hover:hover)").matches;
+    function setCompactTopStatus(id, ok, shortOk, shortErr, detail, holdMs=2600){
+      const el = $(id);
+      if (!el) return;
+      el.classList.remove("ok","err","neutral");
+      el.classList.add(ok ? "ok" : "err");
+      el.textContent = ok ? shortOk : shortErr;
+      el.title = canHover() ? (detail || "") : "";
+      if (ok && holdMs > 0){
+        clearTimeout(el._timer);
+        el._timer = setTimeout(() => {
+          el.classList.remove("ok","err");
+          el.classList.add("neutral");
+          el.textContent = id === "actStatus" ? "Act" : "Base";
+          el.title = "";
+        }, holdMs);
+      }
+    }
+    function setActStatus(ok, detail){ setCompactTopStatus("actStatus", ok, "Act OK", "Act ERR", detail, ok ? 2300 : 0); }
+    function setDBStatus(ok, detail){ setCompactTopStatus("dbStatus", ok, "Base OK", "Base ERR", detail, 0); }
+    function num(v){ const n = Number(v); return Number.isFinite(n) ? n : 0; }
+    function fmt(v){ return Math.abs(v)>=100 ? v.toFixed(0) : Math.abs(v)>=10 ? v.toFixed(1) : v.toFixed(2); }
+    function todayStr(){
+      const d = new Date();
+      const m = String(d.getMonth()+1).padStart(2,"0");
+      const day = String(d.getDate()).padStart(2,"0");
+      return `${d.getFullYear()}-${m}-${day}`;
+    }
+    function normalizeStoredActivities(raw){
+      try{
+        const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+        if (Array.isArray(parsed)) return { events: parsed, biometricos: {} };
+        if (parsed && Array.isArray(parsed.events)) return { events: parsed.events, biometricos: parsed.biometricos || {} };
+      }catch(_){}
+      return { events: [], biometricos: {} };
+    }
+    function saveActivitiesStore(){
+      localStorage.setItem(LS_ACT, JSON.stringify({ events: activities, biometricos: dayBio }));
+    }
+
+    function hashColor(s){
+      let h = 0; for(let i=0;i<s.length;i++) h = ((h<<5)-h) + s.charCodeAt(i);
+      const hue = Math.abs(h)%360;
+      return `hsl(${hue} 62% 56%)`;
+    }
+
+    function txt(es, en){ return uiLang === "en" ? en : es; }
+    function valLang(v){ return (v && typeof v === "object") ? (v[uiLang] || v.es || v.en || "") : String(v || ""); }
+    function isFav(id){ return favIds.includes(id); }
+    function saveFavs(){ localStorage.setItem(LS_FAV, JSON.stringify(favIds)); }
+    function toggleFav(id){
+      if (!id) return;
+      if (isFav(id)) favIds = favIds.filter(x => x !== id);
+      else favIds.push(id);
+      saveFavs();
+      renderFoods();
+      renderAll();
+    }
+    function normText(s){
+      return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
+    }
+    function foodPack(f){
+      const esName = normText(f?.nombre?.es || "");
+      const enName = normText(f?.nombre?.en || "");
+      const esCat = normText(f?.categoria?.es || "");
+      const enCat = normText(f?.categoria?.en || "");
+      const full = `${esName} ${enName} ${esCat} ${enCat}`;
+      const words = full.split(/[^a-z0-9]+/).filter(Boolean);
+      return { esName, enName, esCat, enCat, full, words };
+    }
+    function foodSearchScore(food, qNorm){
+      if (!qNorm) return 1;
+      const pack = foodPack(food);
+      let score = 0;
+      for (const w of pack.words){
+        if (w === qNorm) score = Math.max(score, 120);
+        else if (w.startsWith(qNorm)) score = Math.max(score, 95);
+      }
+      if (qNorm.length >= 3){
+        if (pack.esName.includes(qNorm)) score = Math.max(score, 72);
+        if (pack.enName.includes(qNorm)) score = Math.max(score, 70);
+        if (pack.esCat.includes(qNorm) || pack.enCat.includes(qNorm)) score = Math.max(score, 45);
+      }
+      const ALIAS = {
+        cafe: ["coffee","cafe","espresso"],
+        te: ["tea","te","mate"],
+        agua: ["agua","sparkling"],
+        tomate: ["tomato","tomate"],
+        atun: ["tuna","atun"],
+        papa: ["potato","papa"]
+      };
+      const aliasBag = ALIAS[qNorm] || [];
+      if (aliasBag.length){
+        for (const a of aliasBag){
+          const na = normText(a);
+          if (pack.words.includes(na)) score = Math.max(score, 110);
+          else if (pack.words.some(w => w.startsWith(na))) score = Math.max(score, 88);
+        }
+      }
+      return score;
+    }
+    function defaultShelfFoods(baseList){
+      const out = [];
+      const used = new Set();
+      const pushFood = (f) => {
+        if (!f || used.has(f.id)) return;
+        used.add(f.id);
+        out.push(f);
+      };
+      const QUICK = ["agua","cafe","te","tomate","huevo","pollo","arroz","banana","avena","leche","atun","carne","papa","pan","yogur"];
+      for (const term of QUICK){
+        const termNorm = normText(term);
+        const matches = baseList
+          .map(f => ({ f, s: foodSearchScore(f, termNorm) }))
+          .filter(x => x.s >= 88)
+          .sort((a,b) => b.s - a.s || valLang(a.f.nombre).localeCompare(valLang(b.f.nombre), "es"))
+          .slice(0, 2);
+        matches.forEach(x => pushFood(x.f));
+      }
+      baseList.filter(f => isFav(f.id)).forEach(pushFood);
+      log.slice().reverse().forEach(it => {
+        const f = DB.find(x => x.id === it.foodId);
+        pushFood(f);
+      });
+      const spreadTarget = 48;
+      if (out.length < spreadTarget && baseList.length){
+        const step = Math.max(1, Math.floor(baseList.length / spreadTarget));
+        for (let i = 0; i < baseList.length && out.length < spreadTarget; i += step){
+          pushFood(baseList[i]);
+        }
+      }
+      return out.slice(0, 48);
+    }
+    function nutrientName(key){
+      const n = NUTRIENT_DEFS.find(x => x.key === key);
+      return n ? (uiLang === "en" ? n.en : n.es) : key;
+    }
+    function nutrientKeyFromQuery(q){
+      const nq = normText(q);
+      if (!nq) return "";
+      for (const n of NUTRIENT_DEFS){
+        const bag = [n.key, n.es, n.en, ...(n.aliases||[])].map(normText);
+        if (bag.includes(nq)) return n.key;
+        if (nq.length >= 3 && bag.some(x => x.includes(nq))) return n.key;
+      }
+      return "";
+    }
+    function nutrientValueFromMode(n, key){
+      const protein = num(n?.p);
+      if (key === "leu") return num(n?.leu) || (protein * AMINO_COEF.leu);
+      if (key === "lys") return num(n?.lys) || (protein * AMINO_COEF.lys);
+      if (key === "met") return num(n?.met) || (protein * AMINO_COEF.met);
+      if (key === "val") return num(n?.val) || (protein * AMINO_COEF.val);
+      if (key === "iso") return num(n?.iso) || (protein * AMINO_COEF.iso);
+      if (key === "phe") return num(n?.phe) || (protein * AMINO_COEF.phe);
+      if (key === "thr") return num(n?.thr) || (protein * AMINO_COEF.thr);
+      if (key === "trp") return num(n?.trp) || (protein * AMINO_COEF.trp);
+      if (key === "his") return num(n?.his) || (protein * AMINO_COEF.his);
+      return num(n?.[key]);
+    }
+    function bestNutrientInFood(food, key){
+      let best = 0;
+      for (const n of Object.values(food.modos || {})){
+        const v = nutrientValueFromMode(n, key);
+        if (v > best) best = v;
+      }
+      return best;
+    }
+    function phaseLabel(v){
+      if (v === "hipertrofia") return txt("Hipertrofia", "Bulking");
+      if (v === "definicion") return txt("Definicion", "Cutting");
+      return txt("Mantenimiento", "Maintenance");
+    }
+    function syncLangButtons(){
+      $("langEs").classList.toggle("active", uiLang === "es");
+      $("langEn").classList.toggle("active", uiLang === "en");
+    }
+    function syncThemeButton(){
+      const btn = $("themeToggle");
+      if (!btn) return;
+      const isLight = uiTheme === "light";
+      btn.textContent = isLight ? "☀" : "☾";
+      btn.title = isLight ? txt("Cambiar a tema oscuro", "Switch to dark theme") : txt("Cambiar a tema claro", "Switch to light theme");
+    }
+    function applyTheme(theme){
+      uiTheme = theme === "light" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", uiTheme);
+      localStorage.setItem(LS_THEME, uiTheme);
+      syncThemeButton();
+    }
+    function toggleTheme(){
+      applyTheme(uiTheme === "dark" ? "light" : "dark");
+    }
+    function syncProfileToggleLabel(){
+      const hidden = $("advancedBox").classList.contains("hidden");
+      $("toggleAdvanced").title = hidden ? txt("Abrir ajustes", "Open settings") : txt("Cerrar ajustes", "Close settings");
+    }
+    function setLang(lang){
+      uiLang = lang === "en" ? "en" : "es";
+      localStorage.setItem(LS_LANG, uiLang);
+      document.documentElement.lang = uiLang;
+      buscar.placeholder = "";
+      $("recargarDB").title = txt("Cargar base de datos", "Load database");
+      $("clearFilter").title = txt("Limpiar filtro", "Clear filter");
+      $("saveDay").textContent = txt("Guardar dia", "Save day");
+      $("closeDay").textContent = txt("Cerrar dia", "Close day");
+      $("exportAllJson").textContent = txt("Exportar historial JSON", "Export history JSON");
+      $("exportAllCsv").textContent = txt("Exportar historial CSV", "Export history CSV");
+      $("limpiar").textContent = txt("Reset Dia", "Reset Day");
+      $("refreshAct").title = txt("Actualizar kcal/peso desde actividades","Refresh kcal/weight from activities");
+      syncThemeButton();
+      syncLangButtons();
+      syncProfileToggleLabel();
+      if (activities.length){
+        setActStatus(true, `${txt("Actividades cargadas","Activities loaded")}: ${activities.length} | ${txt("Gasto","Burned")}: ${fmt(activityKcal())} kcal`);
+      } else {
+        $("actStatus").className = "status-pill neutral";
+        $("actStatus").textContent = "Act";
+        $("actStatus").title = "";
+      }
+      if (nutrientFilterKey) setStatus("nutriStatus", `${txt("Filtrando por","Filtering by")} ${nutrientName(nutrientFilterKey)}.`);
+      else setStatus("nutriStatus", "");
+      renderFoods();
+      renderAll();
+    }
+
+    function normalizeFood(raw){
+      const modos = {};
+      const inModos = raw.modos || {};
+      Object.keys(inModos).forEach((m) => {
+        const n = inModos[m] || {};
+        modos[m] = {
+          kcal: num(n.kcal), p: num(n.p ?? n.proteina), c: num(n.c ?? n.carbos), g: num(n.g ?? n.grasas), f: num(n.f ?? n.fibra),
+          fe: num(n.fe), mg: num(n.mg), zn: num(n.zn), pot: num(n.pot), na: num(n.na), vitc: num(n.vitc),
+          creat: num(n.creat), ca: num(n.ca), phos: num(n.phos), sel: num(n.sel), cu: num(n.cu), mn: num(n.mn), iod: num(n.iod),
+          vita: num(n.vita), vitd: num(n.vitd), vite: num(n.vite), vitk: num(n.vitk), b1: num(n.b1), b2: num(n.b2), b3: num(n.b3), b6: num(n.b6), b12: num(n.b12), fol: num(n.fol),
+          leu: num(n.leu), lys: num(n.lys), met: num(n.met), val: num(n.val), iso: num(n.iso), phe: num(n.phe), thr: num(n.thr), trp: num(n.trp), his: num(n.his),
+          sugar: num(n.sugar), sat: num(n.sat), mono: num(n.mono), poly: num(n.poly), chol: num(n.chol), caf: num(n.caf), water: num(n.water)
+        };
+      });
+      const nombre = (raw.nombre && typeof raw.nombre === "object") ? raw.nombre : { es: String(raw.nombre||"Sin nombre"), en: String(raw.nombre||"Unnamed food") };
+      const categoria = (raw.categoria && typeof raw.categoria === "object") ? raw.categoria : { es: String(raw.categoria||"General"), en: String(raw.categoria||"General") };
+      const meta = raw.meta || {};
+      return { id:String(raw.id || "food_"+Math.random().toString(36).slice(2)), nombre, categoria, modos, meta };
+    }
+
+    function normalizeDB(payload){
+      const list = Array.isArray(payload) ? payload : (Array.isArray(payload?.foods) ? payload.foods : []);
+      return list.map(normalizeFood).filter(f => valLang(f.nombre) && Object.keys(f.modos).length>0);
+    }
+
+    function parseCSV(text){
+      const rows = parseCSVRows(text);
+      if (rows.length < 2) return [];
+      const headers = rows[0].map(h => String(h || "").trim().toLowerCase());
+      const idx = (n) => headers.indexOf(n);
+      const map = {};
+      for(let i=1;i<rows.length;i++){
+        const c = rows[i].map(x => String(x || "").trim());
+        const id = c[idx("id")] || `csv_${i}`;
+        const item = map[id] || {id, nombre:{es:c[idx("nombre")]||"Sin nombre", en:c[idx("name_en")]||c[idx("nombre")]||"Unnamed food"}, categoria:{es:c[idx("categoria")]||"General", en:c[idx("category_en")]||c[idx("categoria")]||"General"}, modos:{}};
+        const modo = c[idx("modo")] || "crudo";
+        item.modos[modo] = {
+          kcal:num(c[idx("kcal")]), p:num(c[idx("p")])||num(c[idx("proteina")]), c:num(c[idx("c")])||num(c[idx("carbos")]),
+          g:num(c[idx("g")])||num(c[idx("grasas")]), f:num(c[idx("f")])||num(c[idx("fibra")]), fe:num(c[idx("fe")]), mg:num(c[idx("mg")]), zn:num(c[idx("zn")]), pot:num(c[idx("pot")]), na:num(c[idx("na")]), vitc:num(c[idx("vitc")]),
+          creat:num(c[idx("creat")]), ca:num(c[idx("ca")]), phos:num(c[idx("phos")]), sel:num(c[idx("sel")]), cu:num(c[idx("cu")]), mn:num(c[idx("mn")]), iod:num(c[idx("iod")]),
+          vita:num(c[idx("vita")]), vitd:num(c[idx("vitd")]), vite:num(c[idx("vite")]), vitk:num(c[idx("vitk")]), b1:num(c[idx("b1")]), b2:num(c[idx("b2")]), b3:num(c[idx("b3")]), b6:num(c[idx("b6")]), b12:num(c[idx("b12")]), fol:num(c[idx("fol")]),
+          leu:num(c[idx("leu")]), lys:num(c[idx("lys")]), met:num(c[idx("met")]), val:num(c[idx("val")]), iso:num(c[idx("iso")]), phe:num(c[idx("phe")]), thr:num(c[idx("thr")]), trp:num(c[idx("trp")]), his:num(c[idx("his")]),
+          sugar:num(c[idx("sugar")])||num(c[idx("azucares")]), sat:num(c[idx("sat")])||num(c[idx("saturadas")]), mono:num(c[idx("mono")]), poly:num(c[idx("poly")]), chol:num(c[idx("chol")])||num(c[idx("colesterol")]), caf:num(c[idx("caf")])||num(c[idx("cafeina")]), water:num(c[idx("water")])||num(c[idx("agua")])
+        };
+        map[id] = item;
+      }
+      return Object.values(map);
+    }
+
+    async function loadDefaultExternalDB(){
+      const fromCache = normalizeDB(JSON.parse(localStorage.getItem(LS_DB)||"[]"));
+      let best = fromCache;
+      let source = fromCache.length ? "cache" : "";
+      try {
+        const r = await fetch("./alimentos.base.es.json", {cache:"no-store"});
+        if (r.ok){
+          const fromJson = normalizeDB(await r.json());
+          if (fromJson.length >= best.length){
+            best = fromJson;
+            source = "json";
+          }
+        }
+      } catch(_) {}
+      try{
+        if (window.FOOD_DB_BUNDLE){
+          const fromBundle = normalizeDB(window.FOOD_DB_BUNDLE);
+          if (fromBundle.length > best.length){
+            best = fromBundle;
+            source = "bundle";
+          }
+        }
+      } catch(_) {}
+      DB = best;
+      if (DB.length){
+        localStorage.setItem(LS_DB, JSON.stringify(DB));
+        setDBStatus(true, `Base cargada: ${DB.length} alimentos (${source || "local"})`);
+      } else {
+        setDBStatus(false, "No se pudo cargar base externa");
+      }
+    }
+
+    function foodsFiltrados(){
+      const qRaw = (buscar.value||"").trim();
+      const qNorm = normText(qRaw);
+      const typedKey = nutrientKeyFromQuery(qRaw);
+      const activeKey = nutrientFilterKey || typedKey;
+
+      if (activeKey){
+        return DB
+          .map(f => ({ f, s: bestNutrientInFood(f, activeKey) }))
+          .filter(x => x.s > 0)
+          .sort((a,b) => {
+            const af = isFav(a.f.id) ? 1 : 0;
+            const bf = isFav(b.f.id) ? 1 : 0;
+            if (bf !== af) return bf - af;
+            if (b.s !== a.s) return b.s - a.s;
+            return valLang(a.f.nombre).localeCompare(valLang(b.f.nombre), "es");
+          })
+          .map(x => x.f);
+      }
+
+      if (!qNorm){
+        return DB.slice().sort((a,b) => valLang(a.nombre).localeCompare(valLang(b.nombre), "es"));
+      }
+
+      const terms = qNorm.split(/\s+/).filter(Boolean);
+      const minScore = qNorm.length <= 2 ? 110 : (qNorm.length <= 4 ? 88 : 70);
+      return DB
+        .map(f => {
+          const scores = terms.map(t => foodSearchScore(f, t));
+          if (scores.some(s => s <= 0)) return { f, s: 0 };
+          const avg = scores.reduce((acc, n) => acc + n, 0) / scores.length;
+          return { f, s: avg + (terms.length > 1 ? 8 : 0) };
+        })
+        .filter(x => x.s >= minScore)
+        .sort((a,b) => {
+          if (b.s !== a.s) return b.s - a.s;
+          const af = isFav(a.f.id) ? 1 : 0;
+          const bf = isFav(b.f.id) ? 1 : 0;
+          if (bf !== af) return bf - af;
+          return valLang(a.f.nombre).localeCompare(valLang(b.f.nombre), "es");
+        })
+        .map(x => x.f);
+    }
+
+    function renderFoods(){
+      const list = foodsFiltrados();
+      const names = {};
+      for (const f of DB){
+        const nCur = normText(valLang(f.nombre));
+        const nEs = normText(f?.nombre?.es || "");
+        const nEn = normText(f?.nombre?.en || "");
+        if (nCur && !names[nCur]) names[nCur] = f.id;
+        if (nEs && !names[nEs]) names[nEs] = f.id;
+        if (nEn && !names[nEn]) names[nEn] = f.id;
+      }
+      foodNameToId = names;
+
+      const typed = (buscar.value || "").trim();
+      const exact = resolveFoodIdFromInput(typed);
+      const qKey = `${normText(typed)}|${nutrientFilterKey || ""}`;
+      if (qKey !== shelfQueryKey){
+        shelfShowAll = false;
+        shelfQueryKey = qKey;
+      }
+      if (typed && exact) currentFoodId = exact;
+      if (!typed && !nutrientFilterKey){
+        if (!currentFoodId || !DB.some(x => x.id === currentFoodId)) currentFoodId = list[0]?.id || "";
+      } else {
+        const stillVisible = list.some(x => x.id === currentFoodId);
+        if (!stillVisible) currentFoodId = exact || list[0]?.id || "";
+        if (typed && !exact && !list.length) currentFoodId = "";
+      }
+
+      let shelfList = list;
+      const baseLimit = 220;
+      if (!typed && !nutrientFilterKey){
+        shelfList = defaultShelfFoods(DB);
+      } else {
+        shelfList = shelfShowAll ? list : list.slice(0, baseLimit);
+      }
+      let shelfHtml = shelfList.map(f => {
+        const active = currentFoodId === f.id ? "active" : "";
+        return `<div class="shelf-item ${active}" data-id="${f.id}"><span>${isFav(f.id) ? "★ " : ""}${valLang(f.nombre)}</span><small>${valLang(f.categoria)}</small></div>`;
+      }).join("");
+      if (!shelfHtml){
+        shelfHtml = `<small class="tiny">${txt("Sin resultados","No results")}</small>`;
+      } else if (typed || nutrientFilterKey){
+        if (!shelfShowAll && list.length > baseLimit){
+          const moreLabel = txt("Ver mas", "Show more");
+          shelfHtml += `<button id="shelfMore" class="btn-mini" style="margin-top:5px;">${moreLabel} (${list.length - baseLimit})</button>`;
+        } else if (shelfShowAll && list.length > baseLimit){
+          shelfHtml += `<button id="shelfLess" class="btn-mini" style="margin-top:5px;">${txt("Ver menos","Show less")}</button>`;
+        }
+      }
+      $("foodShelf").innerHTML = shelfHtml;
+      document.querySelectorAll("#foodShelf .shelf-item").forEach((el) => {
+        el.onclick = () => {
+          currentFoodId = el.dataset.id || "";
+          const picked = DB.find(x => x.id === currentFoodId);
+          const keepNutrientMode = !!nutrientFilterKey || !!nutrientKeyFromQuery(buscar.value || "");
+          if (picked && !keepNutrientMode) buscar.value = valLang(picked.nombre);
+          setStatus("nutriStatus", "");
+          setShelfActive(currentFoodId);
+          setShelfOpen(false);
+          renderModos();
+        };
+      });
+      const moreBtn = $("shelfMore");
+      if (moreBtn){
+        moreBtn.onclick = () => {
+          shelfShowAll = true;
+          renderFoods();
+        };
+      }
+      const lessBtn = $("shelfLess");
+      if (lessBtn){
+        lessBtn.onclick = () => {
+          shelfShowAll = false;
+          renderFoods();
+        };
+      }
+      renderModos();
+    }
+
+    function setShelfActive(foodId){
+      document.querySelectorAll("#foodShelf .shelf-item").forEach((el) => {
+        el.classList.toggle("active", (el.dataset.id || "") === foodId);
+      });
+    }
+
+    function renderModos(){
+      const f = DB.find(x => x.id === currentFoodId);
+      if(!f){ renderFoodDetail(); return; }
+      const modos = Object.keys(f.modos || {});
+      if (!modos.length){ renderFoodDetail(); return; }
+      if (!modos.includes(selectedMode)) {
+        selectedMode = modos.includes("cocido") ? "cocido" : modos[0];
+        modePickerOpen = false;
+      }
+      if (!(selectedQty > 0)) selectedQty = defaultAmountForMode(selectedMode);
+      renderFoodDetail();
+    }
+
+    function renderFoodDetail(){
+      const f = DB.find(x => x.id === currentFoodId);
+      if(!f){
+        $("foodDetail").innerHTML = `<small class="tiny">${txt("No se encontro alimento exacto. Elegi uno de la lista.","No exact food found. Pick one from the list.")}</small>`;
+        return;
+      }
+      function fmtN(label, val, unit){
+        const n = num(val);
+        if (n <= 0) return "";
+        return `${label} ${fmt(n)}${unit ? " "+unit : ""}`;
+      }
+      const modes = Object.keys(f.modos || {});
+      if (!modes.length){
+        $("foodDetail").innerHTML = `<small class="tiny">${txt("Sin modos disponibles para este alimento.","No modes available for this food.")}</small>`;
+        return;
+      }
+      if (!modes.includes(selectedMode)) {
+        selectedMode = modes.includes("cocido") ? "cocido" : modes[0];
+        modePickerOpen = false;
+      }
+      if (!(selectedQty > 0)) selectedQty = defaultAmountForMode(selectedMode);
+      const unit = unitForMode(selectedMode);
+      const n = f.modos[selectedMode] || {};
+      const fac = factor(selectedMode, selectedQty);
+
+      const blocks = (() => {
+        const macros = [
+          fmtN("kcal", nutrientValueFromMode(n,"kcal") * fac, ""),
+          fmtN(txt("Prot","Prot"), nutrientValueFromMode(n,"p") * fac, "g"),
+          fmtN(txt("Carb","Carb"), nutrientValueFromMode(n,"c") * fac, "g"),
+          fmtN(txt("Grasa","Fat"), nutrientValueFromMode(n,"g") * fac, "g"),
+          fmtN(txt("Fibra","Fiber"), nutrientValueFromMode(n,"f") * fac, "g")
+        ].filter(Boolean).join(" | ");
+
+        const micros = [
+          fmtN("Fe", nutrientValueFromMode(n,"fe") * fac, "mg"),
+          fmtN("Mg", nutrientValueFromMode(n,"mg") * fac, "mg"),
+          fmtN("Zn", nutrientValueFromMode(n,"zn") * fac, "mg"),
+          fmtN("K", nutrientValueFromMode(n,"pot") * fac, "mg"),
+          fmtN("Na", nutrientValueFromMode(n,"na") * fac, "mg"),
+          fmtN("Vit C", nutrientValueFromMode(n,"vitc") * fac, "mg"),
+          fmtN("Creatina", nutrientValueFromMode(n,"creat") * fac, "mg"),
+          fmtN("Ca", nutrientValueFromMode(n,"ca") * fac, "mg"),
+          fmtN("Phos", nutrientValueFromMode(n,"phos") * fac, "mg")
+        ].filter(Boolean).join(" | ");
+
+        const amino = [
+          fmtN("Leu", nutrientValueFromMode(n,"leu") * fac, "mg"),
+          fmtN("Lys", nutrientValueFromMode(n,"lys") * fac, "mg"),
+          fmtN("Met", nutrientValueFromMode(n,"met") * fac, "mg"),
+          fmtN("Val", nutrientValueFromMode(n,"val") * fac, "mg"),
+          fmtN("Iso", nutrientValueFromMode(n,"iso") * fac, "mg"),
+          fmtN("Phe", nutrientValueFromMode(n,"phe") * fac, "mg"),
+          fmtN("Thr", nutrientValueFromMode(n,"thr") * fac, "mg"),
+          fmtN("Trp", nutrientValueFromMode(n,"trp") * fac, "mg"),
+          fmtN("His", nutrientValueFromMode(n,"his") * fac, "mg")
+        ].filter(Boolean).join(" | ");
+        const compounds = [
+          fmtN(txt("Azucares","Sugars"), nutrientValueFromMode(n,"sugar") * fac, "g"),
+          fmtN(txt("Sat","Sat"), nutrientValueFromMode(n,"sat") * fac, "g"),
+          fmtN(txt("Mono","Mono"), nutrientValueFromMode(n,"mono") * fac, "g"),
+          fmtN(txt("Poly","Poly"), nutrientValueFromMode(n,"poly") * fac, "g"),
+          fmtN(txt("Colesterol","Cholesterol"), nutrientValueFromMode(n,"chol") * fac, "mg"),
+          fmtN(txt("Cafeina","Caffeine"), nutrientValueFromMode(n,"caf") * fac, "mg"),
+          fmtN(txt("Agua","Water"), nutrientValueFromMode(n,"water") * fac, "g")
+        ].filter(Boolean).join(" | ");
+
+        const rowsBase = [
+          macros ? `<li><strong>${txt("Macros","Macros")}: ${macros}</strong></li>` : "",
+        ].filter(Boolean).join("");
+        const rowsMore = [
+          micros ? `<li>${txt("Minerales y extras","Minerals and extras")}: ${micros}</li>` : "",
+          amino ? `<li>${txt("Aminoacidos","Amino acids")}: ${amino}</li>` : "",
+          compounds ? `<li>${txt("Compuestos","Compounds")}: ${compounds}</li>` : ""
+        ].filter(Boolean).join("");
+        const more = foodDetailExpanded && rowsMore ? `<ul class="food-list">${rowsMore}</ul>` : "";
+        const modeSwitch = modes.length > 1 ? `<button id="modeToggle" class="mode-toggle" title="${txt("Cambiar modo","Change mode")}">+</button>` : "";
+        return `<div class="food-mode"><div class="detail-head"><span class="mode-inline"><b>${txt("Modo","Mode")}: ${selectedMode}</b>${modeSwitch}</span></div><ul class="food-list">${rowsBase}</ul>${more}</div>`;
+      })();
+      const expLabel = foodDetailExpanded ? "-" : "+";
+      const expTitle = foodDetailExpanded ? txt("Ver menos", "Show less") : txt("Ver mas", "Show more");
+      const modePicker = (modes.length > 1 && modePickerOpen)
+        ? `<div class="detail-mode-row"><label>${txt("Modo","Mode")}<select id="detailMode">${modes.map(m => `<option value="${m}" ${m===selectedMode?"selected":""}>${m}</option>`).join("")}</select></label></div>`
+        : "";
+      const qtyOptions = quantityOptionsForMode(selectedMode, selectedQty).map(v => `<option value="${v}" ${num(v)===num(selectedQty)?"selected":""}>${fmt(v)} ${unit}</option>`).join("");
+      $("foodDetail").innerHTML = `<h3><span>${valLang(f.nombre)}</span><select id="detailQty" class="qty-box qty-inline" title="${txt("Cantidad","Amount")} (${unit})">${qtyOptions}</select><button id="detailAddTop" class="detail-add-top">OK</button><button id="favBtn" class="fav-btn ${isFav(f.id) ? "active" : ""}" title="${isFav(f.id) ? txt("Quitar favorito","Unfavorite") : txt("Agregar favorito","Favorite")}">${isFav(f.id) ? "★" : "☆"}</button><small class="tiny">(${valLang(f.categoria)})</small></h3>${blocks}${modePicker}<div><button id="detailToggle" class="mini-toggle" title="${expTitle}">${expLabel}</button></div>`;
+      $("detailToggle").onclick = () => { foodDetailExpanded = !foodDetailExpanded; renderFoodDetail(); };
+      $("favBtn").onclick = () => toggleFav(f.id);
+      const modeT = $("modeToggle");
+      if (modeT){
+        modeT.onclick = () => { modePickerOpen = !modePickerOpen; renderFoodDetail(); };
+      }
+      const modeSelLocal = $("detailMode");
+      if (modeSelLocal){
+        modeSelLocal.onchange = (e) => {
+          selectedMode = e.target.value || selectedMode;
+          selectedQty = defaultAmountForMode(selectedMode);
+          renderFoodDetail();
+        };
+      }
+      $("detailQty").onchange = (e) => {
+        const next = Math.max(num(e.target.value), 0);
+        if (next > 0) selectedQty = next;
+        renderFoodDetail();
+      };
+      $("detailAddTop").onclick = add;
+    }
+
+    function factor(modo,cant){ return (modo==="unidad"||modo==="ml") ? cant : cant/100; }
+    function unitForMode(modo){ return modo==="unidad" ? txt("u","u") : (modo==="ml" ? "ml" : "g"); }
+    function defaultAmountForMode(modo){ return modo==="unidad" ? 1 : 100; }
+    function quantityOptionsForMode(modo, current){
+      if (modo === "unidad"){
+        const arr = [];
+        for (let i=1;i<=12;i++) arr.push(i);
+        if (current > 12 && Number.isFinite(current)) arr.push(Math.round(current));
+        return [...new Set(arr)].sort((a,b)=>a-b);
+      }
+      const arr = [];
+      for (let v=50; v<=1500; v+=50) arr.push(v);
+      const c = Math.round(num(current));
+      if (c > 0 && !arr.includes(c)) arr.push(c);
+      return [...new Set(arr)].sort((a,b)=>a-b);
+    }
+
+    function add(){
+      const typed = (buscar.value || "").trim();
+      const resolvedId = resolveFoodIdFromInput(typed) || currentFoodId;
+      if (typed && !resolvedId){
+        currentFoodId = "";
+        setStatus("nutriStatus", txt("Ese alimento no existe en la base actual.", "That food is not in the current database."));
+        renderModos();
+        renderFoodDetail();
+        return;
+      }
+      if (resolvedId) currentFoodId = resolvedId;
+      const f = DB.find(x => x.id === currentFoodId);
+      let m = selectedMode;
+      const modes = Object.keys(f?.modos || {});
+      if (f && (!m || !modes.includes(m))) m = modes.includes("cocido") ? "cocido" : (modes[0] || "");
+      const cant = num(selectedQty);
+      if(!f || !m || cant<=0) return;
+      log.push({ id:Date.now()+Math.random(), foodId:f.id, color:hashColor(f.id), modo:m, cantidad:cant, n:f.modos[m], ts:new Date().toISOString() });
+      localStorage.setItem(LS_LOG, JSON.stringify(log));
+      setStatus("nutriStatus", "");
+      renderAll();
+    }
+
+    function rem(id){ log = log.filter(x => x.id !== id); localStorage.setItem(LS_LOG, JSON.stringify(log)); renderAll(); }
+    function clearAll(){
+      if(!confirm(txt("Estas seguro de resetear el dia? Se borra la olla de hoy.","Are you sure you want to reset the day? Today's pot will be cleared."))) return;
+      log=[];
+      localStorage.setItem(LS_LOG,"[]");
+      setStatus("dataStatus", txt("Dia reseteado.","Day reset."));
+      renderAll();
+    }
+
+    function downloadText(name, text, mime){
+      const blob = new Blob([text], {type:mime});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = name; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function buildDayPayload(dayDate=todayStr(), closed=false){
+      const {t} = totals();
+      return {
+        version: "1.0",
+        date: dayDate,
+        closed,
+        saved_at: new Date().toISOString(),
+        source_app: "nutricion.html",
+        profile: perfil,
+        burned_kcal: activityKcal(),
+        totals: t,
+        items: log.map(it => {
+          const f = DB.find(x => x.id === it.foodId);
+          return {
+            id: it.id,
+            food_id: it.foodId,
+            food_name: f ? valLang(f.nombre) : it.foodId,
+            mode: it.modo,
+            amount: it.cantidad,
+            nutrients_per_unit: it.n
+          };
+        })
+      };
+    }
+
+    function savePayloadToArchive(payload){
+      const arc = JSON.parse(localStorage.getItem(LS_ARCHIVE) || "{}");
+      arc[payload.date] = payload;
+      localStorage.setItem(LS_ARCHIVE, JSON.stringify(arc));
+    }
+
+    function archiveList(){
+      const arc = JSON.parse(localStorage.getItem(LS_ARCHIVE) || "{}");
+      return Object.values(arc).sort((a,b) => String(a.date).localeCompare(String(b.date)));
+    }
+
+    function archiveCSV(days){
+      const head = "date,closed,food_id,food_name,mode,amount,kcal,p,c,g,f,fe,mg,zn,pot,na,vitc,creat,ca,phos";
+      const rows = [];
+      for (const d of days){
+        for (const it of (d.items || [])){
+          const n = it.nutrients_per_unit || {};
+          rows.push([
+            d.date, d.closed ? 1 : 0, it.food_id || "", (it.food_name || "").replace(/,/g," "),
+            it.mode || "", it.amount || 0,
+            n.kcal || 0, n.p || 0, n.c || 0, n.g || 0, n.f || 0, n.fe || 0, n.mg || 0, n.zn || 0,
+            n.pot || 0, n.na || 0, n.vitc || 0, n.creat || 0, n.ca || 0, n.phos || 0
+          ].join(","));
+        }
+      }
+      return [head, ...rows].join("\n");
+    }
+
+    async function saveDay(){
+      const payload = buildDayPayload(todayStr(), false);
+      savePayloadToArchive(payload);
+      const text = JSON.stringify(payload, null, 2);
+      const fileName = `nutricion_${payload.date}.json`;
+      if (window.showSaveFilePicker) {
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName: fileName,
+            types: [{ description: "JSON", accept: { "application/json": [".json"] } }]
+          });
+          const writable = await handle.createWritable();
+          await writable.write(text);
+          await writable.close();
+          setStatus("dataStatus", txt("Dia guardado en storage y archivo JSON.","Day saved to storage and JSON file."));
+          return;
+        } catch (err) {
+          if (err && err.name === "AbortError") return;
+        }
+      }
+      downloadText(fileName, text, "application/json");
+      setStatus("dataStatus", txt("Dia guardado en storage y archivo JSON.","Day saved to storage and JSON file."));
+    }
+
+    async function closeDay(){
+      const payload = buildDayPayload(todayStr(), true);
+      savePayloadToArchive(payload);
+      const fileName = `cierre_${payload.date}.json`;
+      const text = JSON.stringify(payload, null, 2);
+      downloadText(fileName, text, "application/json");
+      setStatus("dataStatus", txt("Dia cerrado: guardado en storage y JSON descargado.","Day closed: saved to storage and JSON downloaded."));
+    }
+
+    function exportAllHistoryJSON(){
+      const days = archiveList();
+      const out = { version:"1.0", exported_at:new Date().toISOString(), days };
+      downloadText(`historial_total_${todayStr()}.json`, JSON.stringify(out, null, 2), "application/json");
+      setStatus("dataStatus", txt("Historial JSON exportado.","History JSON exported."));
+    }
+
+    function exportAllHistoryCSV(){
+      const days = archiveList();
+      const csv = archiveCSV(days);
+      downloadText(`historial_total_${todayStr()}.csv`, csv, "text/csv");
+      setStatus("dataStatus", txt("Historial CSV exportado.","History CSV exported."));
+    }
+
+    function tmb(){
+      const p = perfil;
+      const base = 10*p.peso + 6.25*p.altura - 5*p.edad;
+      return p.sexo === "m" ? base + 5 : base - 161;
+    }
+
+    function kcalObjetivo(){
+      const b = tmb() * 1.35;
+      if (perfil.fase === "hipertrofia") return b * 1.12;
+      if (perfil.fase === "definicion") return b * 0.85;
+      return b;
+    }
+
+    function saveProfile(){
+      perfil = { peso:num($("peso").value)||80, altura:num($("altura").value)||175, edad:num($("edad").value)||30, sexo:$("sexo").value||"m", fase:$("fase").value||"mantenimiento" };
+      localStorage.setItem(LS_PROFILE, JSON.stringify(perfil));
+      $("advancedBox").classList.add("hidden");
+      syncProfileToggleLabel();
+      setStatus("dataStatus", txt("Perfil guardado.", "Profile saved."));
+      const btn = $("guardarPerfil");
+      const prev = btn.textContent;
+      btn.textContent = txt("Guardado", "Saved");
+      setTimeout(() => { btn.textContent = prev; }, 900);
+      renderAll();
+    }
+
+    function totals(){
+      const t = {kcal:0,p:0,c:0,g:0,f:0,fe:0,mg:0,zn:0,pot:0,na:0,vitc:0,creat:0,ca:0,phos:0,sel:0,cu:0,mn:0,iod:0,vita:0,vitd:0,vite:0,vitk:0,b1:0,b2:0,b3:0,b6:0,b12:0,fol:0,leu:0,lys:0,met:0,val:0,iso:0,phe:0,thr:0,trp:0,his:0};
+      const contrib = {}; // nutrient -> foodId -> value
+
+      function addC(nutrient, foodId, val){
+        if(!contrib[nutrient]) contrib[nutrient] = {};
+        contrib[nutrient][foodId] = (contrib[nutrient][foodId]||0) + val;
+      }
+
+      for(const it of log){
+        const fac = factor(it.modo, it.cantidad);
+        const n = it.n || {};
+        const protein = num(n.p);
+        const aa = {
+          leu: num(n.leu) || protein*AMINO_COEF.leu,
+          lys: num(n.lys) || protein*AMINO_COEF.lys,
+          met: num(n.met) || protein*AMINO_COEF.met,
+          val: num(n.val) || protein*AMINO_COEF.val,
+          iso: num(n.iso) || protein*AMINO_COEF.iso,
+          phe: num(n.phe) || protein*AMINO_COEF.phe,
+          thr: num(n.thr) || protein*AMINO_COEF.thr,
+          trp: num(n.trp) || protein*AMINO_COEF.trp,
+          his: num(n.his) || protein*AMINO_COEF.his,
+        };
+
+        const keys = ["kcal","p","c","g","f","fe","mg","zn","pot","na","vitc","creat","ca","phos","sel","cu","mn","iod","vita","vitd","vite","vitk","b1","b2","b3","b6","b12","fol","sugar","sat","mono","poly","chol","caf","water"];
+        for(const k of keys){
+          const val = num(n[k]) * fac;
+          t[k] += val;
+          addC(k, it.foodId, val);
+        }
+
+        for(const k of Object.keys(aa)){
+          const val = aa[k] * fac;
+          t[k] += val;
+          addC(k, it.foodId, val);
+        }
+      }
+
+      return { t, contrib };
+    }
+
+    function activityKcal(){
+      return activities.reduce((acc, e) => acc + num(e.kcal_active), 0);
+    }
+
+    function goals(){
+      const kg = perfil.peso || 80;
+      return {
+        kcal: kcalObjetivo(), p: kg*DEF_TARGETS.p, c: kg*DEF_TARGETS.c, g: kg*DEF_TARGETS.g, f: DEF_TARGETS.f,
+        fe: DEF_TARGETS.fe, mg: DEF_TARGETS.mg, zn: DEF_TARGETS.zn, pot: DEF_TARGETS.pot, na: DEF_TARGETS.na, vitc: DEF_TARGETS.vitc,
+        creat: DEF_TARGETS.creat, ca: DEF_TARGETS.ca, phos: DEF_TARGETS.phos, sel: DEF_TARGETS.sel, cu: DEF_TARGETS.cu, mn: DEF_TARGETS.mn, iod: DEF_TARGETS.iod,
+        vita: DEF_TARGETS.vita, vitd: DEF_TARGETS.vitd, vite: DEF_TARGETS.vite, vitk: DEF_TARGETS.vitk, b1: DEF_TARGETS.b1, b2: DEF_TARGETS.b2, b3: DEF_TARGETS.b3, b6: DEF_TARGETS.b6, b12: DEF_TARGETS.b12, fol: DEF_TARGETS.fol,
+        sugar: DEF_TARGETS.sugar, sat: DEF_TARGETS.sat, mono: DEF_TARGETS.mono, poly: DEF_TARGETS.poly, chol: DEF_TARGETS.chol, caf: DEF_TARGETS.caf, water: DEF_TARGETS.water,
+        leu: kg*39, lys: kg*30, met: kg*15, val: kg*26, iso: kg*20, phe: kg*25, thr: kg*15, trp: kg*4, his: kg*10
+      };
+    }
+
+    function stackedSegments(goal, contribMap){
+      const safeGoal = Math.max(num(goal), 1);
+      const entries = Object.entries(contribMap || {}).sort((a,b)=>b[1]-a[1]);
+      if (!entries.length) return "";
+      return entries.map(([foodId,val]) => {
+        const w = Math.max((val/safeGoal)*100, 0);
+        return `<div class="seg" title="${foodId}: ${fmt(val)}" style="width:${w}%;background:${hashColor(foodId)}"></div>`;
+      }).join("");
+    }
+
+    function metric(key, label, unit, t, g, contrib, hideLabel=false){
+      const v = num(t[key]), goal = Math.max(num(g[key]), 1), r = v/goal;
+      const barSegs = stackedSegments(goal, contrib[key]);
+      const pct = Math.round(r*100);
+      const title = hideLabel ? "" : `<span>${label}</span>`;
+      if (hideLabel){
+        return `<div class="metric clickable" data-nk="${key}" title="${txt("Click para sugerir alimentos de este nutriente","Click to suggest foods for this nutrient")}"><div class="meta"><b>${fmt(v)} / ${fmt(goal)} ${unit}</b></div><span class="bar-inline bar-inline-wide">${barSegs}<span class="bar-inline-text">${pct}%</span></span></div>`;
+      }
+      return `<div class="metric clickable" data-nk="${key}" title="${txt("Click para sugerir alimentos de este nutriente","Click to suggest foods for this nutrient")}"><div class="meta">${title}<b>${fmt(v)} / ${fmt(goal)} ${unit}</b></div><span class="bar-inline bar-inline-wide">${barSegs}<span class="bar-inline-text">${pct}%</span></span></div>`;
+    }
+
+    function renderLegend(){
+      const box = $("legend");
+      if (!box) return;
+      const ids = [...new Set(log.map(x => x.foodId))];
+      box.innerHTML = ids.slice(0,24).map(id => {
+        const f = DB.find(x => x.id===id);
+        const name = f ? valLang(f.nombre) : id;
+        return `<span class="tiny"><span class="dot" style="background:${hashColor(id)}"></span>${name}</span>`;
+      }).join("");
+    }
+
+    function setShelfOpen(open){
+      $("foodShelf").classList.toggle("hidden", !open);
+      $("alacenaLabel").classList.toggle("hidden", !open);
+    }
+
+    function renderMtor(t,g,burned,net){
+      const leucina = t.leu / 1000;
+      const prot = t.p;
+      const protGoal = Math.max(num(g.p), 1);
+      let maxLeuIngesta = 0, maxProtIngesta = 0;
+
+      for (const it of log){
+        const fac = factor(it.modo, it.cantidad), n = it.n || {}, p = num(n.p) * fac;
+        const leu = (num(n.leu) || (num(n.p) * AMINO_COEF.leu)) * fac / 1000;
+        if (leu > maxLeuIngesta) maxLeuIngesta = leu;
+        if (p > maxProtIngesta) maxProtIngesta = p;
+      }
+
+      const trainedStrength = activities.some((e) => {
+        const a = normText(e.activity_type || "");
+        return a.includes("fuerza") || a.includes("pesas") || a.includes("gym") || a.includes("musculacion") || a.includes("entreno");
+      });
+      const leucineOk = maxLeuIngesta >= 2.5;
+      const proteinOk = prot >= protGoal;
+      const energyOk = perfil.fase === "hipertrofia" ? net >= -300 : true;
+      const passCount = [leucineOk, proteinOk, trainedStrength, energyOk].filter(Boolean).length;
+      const isOn = passCount >= 3;
+
+      const s = (ok) => ok ? "OK" : "NO";
+      const exp = mtorExpanded ? "-" : "+";
+      $("mtorInline").innerHTML = `<span>mTOR</span><b class="state ${isOn ? "on" : "off"}">${isOn ? "ON" : "OFF"}</b><span>${passCount}/4</span><button id="mtorToggle" class="mini-toggle" title="${mtorExpanded ? "Ver menos" : "Ver mas"}">${exp}</button>`;
+      const detailEl = $("mtorDetail");
+      if (!mtorExpanded){
+        detailEl.classList.add("hidden");
+        detailEl.innerHTML = "";
+      } else {
+        detailEl.classList.remove("hidden");
+        detailEl.innerHTML = [
+          `<div><b>Estado:</b> ${isOn ? "activacion favorable" : "activacion insuficiente"} (${passCount}/4)</div>`,
+          `<div><b>Leucina:</b> ${fmt(maxLeuIngesta)} g pico por ingesta (${s(leucineOk)}, objetivo >= 2.5 g) · total dia ${fmt(leucina)} g</div>`,
+          `<div><b>Proteina:</b> ${fmt(prot)} g / ${fmt(protGoal)} g objetivo (${s(proteinOk)}) · pico ingesta ${fmt(maxProtIngesta)} g</div>`,
+          `<div><b>Fuerza:</b> ${s(trainedStrength)} (${trainedStrength ? "actividad de fuerza detectada" : "sin actividad de fuerza en registro"})</div>`,
+          `<div><b>Energia:</b> neto ${fmt(net)} kcal · gastadas ${fmt(burned)} kcal (${s(energyOk)}${perfil.fase === "hipertrofia" ? ", umbral -300" : ""})</div>`,
+          `<div><b>Fase actual:</b> ${phaseLabel(perfil.fase)}</div>`
+        ].join("");
+      }
+      const tgl = $("mtorToggle");
+      if (tgl) tgl.onclick = () => { mtorExpanded = !mtorExpanded; renderMtor(t,g,burned,net); };
+    }
+    function renderAlerts(t,g){
+      const items = [];
+      if (t.f < 20) items.push(txt("Fibra baja: subi verduras, legumbres o semillas.","Low fiber: increase veggies, legumes or seeds."));
+      if (t.vitc < 60) items.push(txt("Vitamina C baja: agrega frutas o verduras frescas.","Low vitamin C: add fruits or fresh vegetables."));
+      if (t.p < (perfil.peso*1.2)) items.push(txt("Proteina baja para objetivo: puede faltar recuperacion.","Protein may be low for your goal."));
+      if (t.na > 3000) items.push(txt("Sodio alto: revisa sal y ultraprocesados.","Sodium is high: check salt and processed foods."));
+      if (t.sugar > g.sugar) items.push(txt("Azucares altos para el dia.","Sugars are high for the day."));
+      if (t.sat > g.sat) items.push(txt("Grasa saturada alta: revisa fritos/ultraprocesados.","Saturated fat is high: check fried/processed foods."));
+      if (t.chol > g.chol) items.push(txt("Colesterol alto para el objetivo diario.","Cholesterol is high for the daily target."));
+      if (t.caf > g.caf) items.push(txt("Cafeina alta para el dia.","Caffeine is high for the day."));
+      if (t.kcal > g.kcal*1.2) items.push(txt("Kcal por encima del objetivo de hoy.","Calories are above today's target."));
+      if (t.kcal < g.kcal*0.7) items.push(txt("Kcal por debajo del objetivo de hoy.","Calories are below today's target."));
+      $("alerts").innerHTML = items.length
+        ? `<ul class="warn-list">${items.map(x => `<li><strong>${x}</strong></li>`).join("")}</ul>`
+        : `<small class="tiny">${txt("Sin alertas importantes por ahora.","No major alerts for now.")}</small>`;
+    }
+
+    function bindMetricClicks(){
+      document.querySelectorAll(".metric[data-nk]").forEach((el) => {
+        el.onclick = () => {
+          const k = el.dataset.nk || "";
+          if (!k) return;
+          nutrientFilterKey = k;
+          $("buscar").value = nutrientName(k);
+          setStatus("nutriStatus", `${txt("Filtrando por","Filtering by")} ${nutrientName(k)}.`);
+          renderFoods();
+        };
+      });
+    }
+
+    function renderAll(){
+      $("peso").value = perfil.peso; $("altura").value = perfil.altura; $("edad").value = perfil.edad; $("sexo").value = perfil.sexo; $("fase").value = perfil.fase;
+      $("profileLine").innerHTML = [
+        `${txt("Edad","Age")} <b>${Math.round(num(perfil.edad))}</b>`,
+        `${txt("Altura","Height")} <b>${Math.round(num(perfil.altura))}</b>`,
+        `${txt("Peso","Weight")} <b>${Math.round(num(perfil.peso))}k</b>`,
+        `${txt("Fase","Phase")}: <b>${phaseLabel(perfil.fase)}</b>`
+      ].join(" · ");
+
+      const {t, contrib} = totals();
+      const g = goals();
+      const burned = activityKcal();
+      const net = t.kcal - burned;
+
+      $("macroMeta").innerHTML = [
+        `<span class="macro-pill"><span class="k">TMB</span><b>${fmt(tmb())}</b></span>`,
+        `<span class="macro-pill"><span class="k">${txt("Kcal gastadas","Kcal burned")}</span><b>${fmt(burned)} kcal</b></span>`,
+        `<span class="macro-pill"><span class="k">${txt("Balance neto","Net balance")}</span><b>${fmt(net)} kcal</b></span>`
+      ].join("");
+
+      $("olla").innerHTML = log.length
+        ? log.slice().reverse().map(it => {
+            const f = DB.find(x => x.id === it.foodId);
+            const n = f ? valLang(f.nombre) : it.foodId;
+            return `<div class="it"><div><strong style="color:${it.color}">${n}</strong><small>${it.cantidad} ${it.modo}</small></div><button class="del" onclick="rem(${it.id})">x</button></div>`;
+          }).join("")
+        : `<small class="tiny">${txt("Todavia no agregaste ingredientes.","No ingredients added yet.")}</small>`;
+
+      $("cards").innerHTML = [
+        [txt("Kcal","Kcal"), metric("kcal",txt("Kcal","Kcal"),"kcal",t,g,contrib,true), "kcal"],
+        [txt("Proteina","Protein"), metric("p",txt("Proteina","Protein"),"g",t,g,contrib,true), "protein"],
+        [txt("Carbohidratos","Carbohydrates"), metric("c",txt("Carbos","Carbs"),"g",t,g,contrib,true), "carbs"]
+      ].map(x => `<div class="card macro ${x[2]}"><div class="k">${x[0]}</div>${x[1]}</div>`).join("");
+
+      $("aminoBox").innerHTML = [
+        metric("leu",txt("Leucina","Leucine"),"mg",t,g,contrib), metric("lys",txt("Lisina","Lysine"),"mg",t,g,contrib), metric("met",txt("Metionina","Methionine"),"mg",t,g,contrib),
+        metric("val",txt("Valina","Valine"),"mg",t,g,contrib), metric("iso",txt("Isoleucina","Isoleucine"),"mg",t,g,contrib), metric("phe",txt("Fenilalanina","Phenylalanine"),"mg",t,g,contrib),
+        metric("thr",txt("Treonina","Threonine"),"mg",t,g,contrib), metric("trp",txt("Triptofano","Tryptophan"),"mg",t,g,contrib), metric("his",txt("Histidina","Histidine"),"mg",t,g,contrib)
+      ].join("");
+
+      $("microBox").innerHTML = [
+        metric("fe",txt("Hierro","Iron"),"mg",t,g,contrib), metric("mg",txt("Magnesio","Magnesium"),"mg",t,g,contrib), metric("zn",txt("Zinc","Zinc"),"mg",t,g,contrib),
+        metric("pot",txt("Potasio","Potassium"),"mg",t,g,contrib), metric("na",txt("Sodio","Sodium"),"mg",t,g,contrib), metric("vitc",txt("Vitamina C","Vitamin C"),"mg",t,g,contrib)
+      ].join("");
+
+      $("extraBox").innerHTML = [
+        metric("creat",txt("Creatina","Creatine"),"mg",t,g,contrib), metric("ca",txt("Calcio","Calcium"),"mg",t,g,contrib), metric("phos",txt("Fosforo","Phosphorus"),"mg",t,g,contrib),
+        metric("sel",txt("Selenio","Selenium"),"mcg",t,g,contrib), metric("cu",txt("Cobre","Copper"),"mg",t,g,contrib), metric("mn",txt("Manganeso","Manganese"),"mg",t,g,contrib),
+        metric("iod",txt("Yodo","Iodine"),"mcg",t,g,contrib), metric("vita",txt("Vitamina A","Vitamin A"),"mcg",t,g,contrib), metric("vitd",txt("Vitamina D","Vitamin D"),"mcg",t,g,contrib),
+        metric("vite",txt("Vitamina E","Vitamin E"),"mg",t,g,contrib), metric("vitk",txt("Vitamina K","Vitamin K"),"mcg",t,g,contrib), metric("b1",txt("Vitamina B1","Vitamin B1"),"mg",t,g,contrib),
+        metric("b2",txt("Vitamina B2","Vitamin B2"),"mg",t,g,contrib), metric("b3",txt("Vitamina B3","Vitamin B3"),"mg",t,g,contrib), metric("b6",txt("Vitamina B6","Vitamin B6"),"mg",t,g,contrib),
+        metric("b12",txt("Vitamina B12","Vitamin B12"),"mcg",t,g,contrib), metric("fol",txt("Folato","Folate"),"mcg",t,g,contrib),
+        metric("sugar",txt("Azucares","Sugars"),"g",t,g,contrib), metric("sat",txt("Sat","Sat"),"g",t,g,contrib), metric("mono",txt("Mono","Mono"),"g",t,g,contrib),
+        metric("poly",txt("Poly","Poly"),"g",t,g,contrib), metric("chol",txt("Colesterol","Cholesterol"),"mg",t,g,contrib), metric("caf",txt("Cafeina","Caffeine"),"mg",t,g,contrib),
+        metric("water",txt("Agua","Water"),"g",t,g,contrib)
+      ].join("");
+
+      renderLegend();
+      renderMtor(t,g,burned,net);
+      renderAlerts(t,g);
+      bindMetricClicks();
+    }
+
+    async function handleFoodFile(file){
+      const text = await file.text();
+      const ext = (file.name.split(".").pop()||"").toLowerCase();
+      let loaded = [];
+      if (ext === "json") loaded = normalizeDB(JSON.parse(text));
+      else if (ext === "csv") loaded = normalizeDB(parseCSV(text));
+      else throw new Error("Formato no soportado");
+      if (!loaded.length) throw new Error("Archivo vacio o invalido");
+      DB = loaded;
+      localStorage.setItem(LS_DB, JSON.stringify(DB));
+      setDBStatus(true, `Base cargada manualmente: ${DB.length} alimentos (${file.name})`);
+      renderFoods(); renderAll();
+    }
+
+    function parseActivitiesCSV(text){
+      const rows = parseCSVRows(text);
+      if (rows.length < 2) return { events: [], biometricos: {} };
+      const h = rows[0].map(x=>String(x || "").trim().toLowerCase());
+      const idx = (n) => h.indexOf(n);
+      const out = [];
+      let bio = {};
+      for(let i=1;i<rows.length;i++){
+        const c = rows[i].map(x => String(x || "").trim());
+        if (i === 1){
+          bio = {
+            wake_time: c[idx("wake_time")] || "",
+            sleep_time: c[idx("sleep_time")] || "",
+            siesta_time: c[idx("siesta_time")] || "",
+            wake_weight_kg: num(c[idx("wake_weight_kg")])
+          };
+        }
+        out.push({
+          id: c[idx("id")] || `evt_${i}`,
+          date: c[idx("date")] || "",
+          activity_type: c[idx("activity_type")] || c[idx("actividad")] || "actividad",
+          duration_min: num(c[idx("duration_min")]),
+          kcal_active: num(c[idx("kcal_active")]),
+          steps: num(c[idx("steps")]) || num(c[idx("pasos")]),
+          source: c[idx("source")] || "manual",
+          note: c[idx("note")] || ""
+        });
+      }
+      return { events: out, biometricos: bio };
+    }
+
+    function parseCSVRows(text){
+      const rows = [];
+      let row = [];
+      let cell = "";
+      let inQuotes = false;
+      for (let i = 0; i < text.length; i++){
+        const ch = text[i];
+        const next = text[i+1];
+        if (ch === "\""){
+          if (inQuotes && next === "\""){ cell += "\""; i++; continue; }
+          inQuotes = !inQuotes;
+          continue;
+        }
+        if (!inQuotes && ch === ","){ row.push(cell); cell = ""; continue; }
+        if (!inQuotes && (ch === "\n" || ch === "\r")){
+          if (ch === "\r" && next === "\n") i++;
+          row.push(cell);
+          if (row.some(x => String(x).trim() !== "")) rows.push(row);
+          row = [];
+          cell = "";
+          continue;
+        }
+        cell += ch;
+      }
+      row.push(cell);
+      if (row.some(x => String(x).trim() !== "")) rows.push(row);
+      return rows;
+    }
+
+    function resolveFoodIdFromInput(raw){
+      const typed = String(raw || "").trim();
+      if (!typed) return "";
+      const norm = normText(typed);
+      if (foodNameToId[norm]) return foodNameToId[norm];
+      const dbByName = DB.find((f) => {
+        const bag = [normText(valLang(f.nombre)), normText(f?.nombre?.es), normText(f?.nombre?.en)];
+        return bag.includes(norm);
+      });
+      if (dbByName) return dbByName.id;
+      const dbById = DB.find(f => f.id === typed);
+      return dbById ? dbById.id : "";
+    }
+
+    function applyActivityPayload(payload){
+      const p = normalizeStoredActivities(payload);
+      activities = (p.events || []).map(e => ({
+        id:e.id || `evt_${Math.random().toString(36).slice(2)}`,
+        date:e.date || "",
+        activity_type:e.activity_type || "actividad",
+        duration_min:num(e.duration_min),
+        kcal_active:num(e.kcal_active),
+        steps:num(e.steps),
+        source:e.source || "manual",
+        note:e.note || ""
+      }));
+      dayBio = p.biometricos || {};
+      const w = num(dayBio.wake_weight_kg || dayBio.weight_kg);
+      if (w > 20 && w < 300) {
+        perfil.peso = w;
+        localStorage.setItem(LS_PROFILE, JSON.stringify(perfil));
+      }
+      saveActivitiesStore();
+      setActStatus(true, `${txt("Actividades cargadas","Activities loaded")}: ${activities.length} | ${txt("Gasto","Burned")}: ${fmt(activityKcal())} kcal`);
+      renderAll();
+    }
+
+    async function handleActivityFile(file){
+      const text = await file.text();
+      const ext = (file.name.split(".").pop()||"").toLowerCase();
+      let payload = { events: [], biometricos: {} };
+      if (ext === "json") {
+        const d = JSON.parse(text);
+        payload = Array.isArray(d?.events) || d?.biometricos ? d : { events: (Array.isArray(d) ? d : []), biometricos: {} };
+      } else if (ext === "csv") payload = parseActivitiesCSV(text);
+      else throw new Error("Formato no soportado");
+      applyActivityPayload(payload);
+    }
+
+    async function refreshActivitiesFromDefault(){
+      let fetchError = "";
+      try{
+        const r = await fetch("./actividades.export.json", { cache:"no-store" });
+        if (!r.ok) throw new Error("No existe actividades.export.json");
+        const payload = await r.json();
+        applyActivityPayload(payload);
+        return;
+      } catch (err){
+        fetchError = err?.message || "fetch failed";
+      }
+      try{
+        const localPayload = normalizeStoredActivities(localStorage.getItem(LS_ACT));
+        const hasLocal = (localPayload.events || []).length > 0 || Object.keys(localPayload.biometricos || {}).length > 0;
+        if (hasLocal){
+          applyActivityPayload(localPayload);
+          setActStatus(true, `${txt("Actividades cargadas desde storage local","Activities loaded from local storage")}: ${(localPayload.events || []).length}`);
+          return;
+        }
+      } catch(_) {}
+      setActStatus(false, `${txt("Error al actualizar","Refresh error")}: ${fetchError}`);
+    }
+
+    $("guardarPerfil").onclick = saveProfile;
+    $("langEs").onclick = () => setLang("es");
+    $("langEn").onclick = () => setLang("en");
+    $("themeToggle").onclick = toggleTheme;
+    $("toggleAdvanced").onclick = () => { $("advancedBox").classList.toggle("hidden"); syncProfileToggleLabel(); };
+    $("refreshAct").onclick = refreshActivitiesFromDefault;
+    $("limpiar").onclick = clearAll;
+    $("saveDay").onclick = saveDay;
+    $("closeDay").onclick = closeDay;
+    $("exportAllJson").onclick = exportAllHistoryJSON;
+    $("exportAllCsv").onclick = exportAllHistoryCSV;
+    $("recargarDB").onclick = async () => { await loadDefaultExternalDB(); renderFoods(); renderAll(); };
+    $("clearFilter").onclick = () => {
+      buscar.value = "";
+      nutrientFilterKey = "";
+      shelfShowAll = false;
+      setStatus("nutriStatus", "");
+      setShelfOpen(false);
+      renderFoods();
+    };
+    buscar.onfocus = () => { setShelfOpen(true); renderFoods(); };
+    buscar.onblur = () => { setTimeout(() => setShelfOpen(false), 160); };
+    buscar.oninput = () => {
+      const typedValue = (buscar.value || "").trim();
+      setShelfOpen(true);
+      const key = nutrientKeyFromQuery(typedValue);
+      if (key) {
+        nutrientFilterKey = key;
+        setStatus("nutriStatus", `${txt("Filtrando por","Filtering by")} ${nutrientName(key)}.`);
+      } else if (typedValue) {
+        nutrientFilterKey = "";
+        const resolved = resolveFoodIdFromInput(typedValue);
+        if (resolved) {
+          currentFoodId = resolved;
+          setStatus("nutriStatus", "");
+        } else {
+          setStatus("nutriStatus", txt("Busqueda por nombre/categoria.", "Search by name/category."));
+        }
+      } else {
+        nutrientFilterKey = "";
+        setStatus("nutriStatus", "");
+      }
+      renderFoods();
+    };
+    buscar.onchange = () => {
+      const typed = (buscar.value || "").trim();
+      const resolved = resolveFoodIdFromInput(typed);
+      if (resolved){
+        currentFoodId = resolved;
+        setStatus("nutriStatus", "");
+      } else if (typed && !nutrientKeyFromQuery(typed)){
+        currentFoodId = "";
+        setStatus("nutriStatus", txt("Ese alimento no existe en la base actual.", "That food is not in the current database."));
+      }
+      setShelfActive(currentFoodId);
+      renderModos();
+      renderFoodDetail();
+    };
+    window.rem = rem;
+
+    (async () => {
+      applyTheme(uiTheme);
+      await loadDefaultExternalDB();
+      if ((activityData.events || []).length || Object.keys(activityData.biometricos || {}).length) {
+        applyActivityPayload(activityData);
+      }
+      setLang(uiLang);
+    })();
+  </script>
+  <script src="./pwa-register.js"></script>
+</body>
+</html>

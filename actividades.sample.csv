@@ -1,0 +1,3 @@
+﻿id,date,activity_type,duration_min,kcal_active,source
+evt_001,2026-03-20,caminar,45,210,reloj
+evt_002,2026-03-20,entrenar,60,380,manual

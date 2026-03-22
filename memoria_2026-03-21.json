@@ -1,0 +1,60 @@
+{
+  "version": "1.1",
+  "date": "2026-03-21",
+  "timezone": "America/Buenos_Aires",
+  "source_app": "actividades_diarias.html",
+  "biometricos": {
+    "date": "2026-03-21",
+    "wake_time": "07:00",
+    "siesta_time": "00:30",
+    "sleep_time": "23:00",
+    "wake_weight_kg": 80
+  },
+  "events": [
+    {
+      "id": "evt_1774081589233_t1rqm",
+      "date": "2026-03-21",
+      "activity_type": "caminar",
+      "duration_min": 30,
+      "kcal_active": 150,
+      "source": "manual",
+      "note": ""
+    },
+    {
+      "id": "evt_1774081589456_d20bd",
+      "date": "2026-03-21",
+      "activity_type": "caminar",
+      "duration_min": 30,
+      "kcal_active": 150,
+      "source": "manual",
+      "note": ""
+    },
+    {
+      "id": "evt_1774081589619_hmuf8",
+      "date": "2026-03-21",
+      "activity_type": "caminar",
+      "duration_min": 30,
+      "kcal_active": 150,
+      "source": "manual",
+      "note": ""
+    },
+    {
+      "id": "evt_1774081589765_s0d88",
+      "date": "2026-03-21",
+      "activity_type": "caminar",
+      "duration_min": 30,
+      "kcal_active": 150,
+      "source": "manual",
+      "note": ""
+    },
+    {
+      "id": "evt_1774081589919_6h9d6",
+      "date": "2026-03-21",
+      "activity_type": "caminar",
+      "duration_min": 30,
+      "kcal_active": 150,
+      "source": "manual",
+      "note": ""
+    }
+  ]
+}

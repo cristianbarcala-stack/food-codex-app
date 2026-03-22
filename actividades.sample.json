@@ -1,0 +1,24 @@
+﻿{
+  "version": "1.0",
+  "date": "2026-03-20",
+  "timezone": "America/Argentina/Buenos_Aires",
+  "source_app": "mi-app-actividad",
+  "events": [
+    {
+      "id": "evt_001",
+      "date": "2026-03-20",
+      "activity_type": "caminar",
+      "duration_min": 45,
+      "kcal_active": 210,
+      "source": "reloj"
+    },
+    {
+      "id": "evt_002",
+      "date": "2026-03-20",
+      "activity_type": "entrenar",
+      "duration_min": 60,
+      "kcal_active": 380,
+      "source": "manual"
+    }
+  ]
+}

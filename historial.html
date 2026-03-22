@@ -1,0 +1,209 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#c7a562">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <title>Food Codex - Historial</title>
+  <script>
+    (() => {
+      const t = localStorage.getItem("app_theme_v1") || "dark";
+      document.documentElement.setAttribute("data-theme", t === "light" ? "light" : "dark");
+    })();
+  </script>
+  <link rel="stylesheet" href="./food-codex-ui.css">
+  <style>
+    .row{display:grid;grid-template-columns:2fr 1fr auto;gap:8px;align-items:end}
+    @media (max-width:980px){.row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topline">
+      <div class="brand">
+        <h1>Historial</h1>
+        <p class="sub">Memorias diarias y export CSV maestro</p>
+      </div>
+      <div class="top-actions">
+        <nav class="nav">
+          <a href="./inicio.html">Inicio</a>
+          <a href="./nutricion.html">Nutricion</a>
+          <a href="./actividades_diarias.html">Actividades</a>
+          <a class="active" href="./historial.html">Historial</a>
+        </nav>
+        <button id="themeToggle" class="icon-btn" title="Cambiar tema"></button>
+      </div>
+    </header>
+
+    <section class="panel stack">
+      <h2>Importar Memorias</h2>
+      <div class="row">
+        <label>Archivos JSON diarios
+          <input id="files" type="file" accept=".json,application/json" multiple>
+        </label>
+        <label>Periodo
+          <select id="period">
+            <option value="all">Todo</option>
+            <option value="7">Ultimos 7 dias</option>
+            <option value="30">Ultimos 30 dias</option>
+          </select>
+        </label>
+        <button id="exportCsv" class="btn btn-primary">Exportar CSV maestro</button>
+      </div>
+      <p id="status" class="tiny">Sin archivos cargados.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Resumen</h2>
+      <div id="cards" class="cards"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Detalle Diario</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Peso (kg)</th>
+              <th>Kcal activas</th>
+              <th>Pasos</th>
+              <th>Min activos</th>
+              <th>Eventos</th>
+              <th>Levantada</th>
+              <th>Siesta</th>
+              <th>Dormi</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const fmt = (v) => Number(v || 0).toFixed(1);
+    let days = [];
+
+    function syncThemeButton(){
+      const mode = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+      $("themeToggle").textContent = "\u25d0";
+      $("themeToggle").title = mode === "light" ? "Tema claro" : "Tema oscuro";
+    }
+    $("themeToggle").onclick = () => {
+      const current = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+      const next = current === "light" ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("app_theme_v1", next);
+      syncThemeButton();
+    };
+
+    function parseDay(payload){
+      const events = Array.isArray(payload?.events) ? payload.events : [];
+      const bio = payload?.biometricos || {};
+      const date = bio.date || payload.date || "";
+      const totalKcal = events.reduce((a,e)=>a+(Number(e.kcal_active)||0),0);
+      const totalSteps = events.reduce((a,e)=>a+(Number(e.steps)||0),0);
+      const totalMin = events.reduce((a,e)=>a+(Number(e.duration_min)||0),0);
+      return {
+        date,
+        wake_weight_kg: Number(bio.wake_weight_kg) || 0,
+        wake_time: bio.wake_time || "",
+        siesta_time: bio.siesta_time || "",
+        sleep_time: bio.sleep_time || "",
+        events_count: events.length,
+        kcal_active: totalKcal,
+        steps: totalSteps,
+        min_active: totalMin
+      };
+    }
+
+    function sortByDate(list){
+      return list.slice().sort((a,b) => String(a.date).localeCompare(String(b.date)));
+    }
+
+    function filterPeriod(list){
+      const mode = $("period").value;
+      if (mode === "all" || !list.length) return list;
+      const latest = new Date(list[list.length - 1].date);
+      const back = Number(mode);
+      const from = new Date(latest);
+      from.setDate(from.getDate() - (back - 1));
+      return list.filter((d) => new Date(d.date) >= from);
+    }
+
+    function cardsHTML(list){
+      if (!list.length) {
+        return `<div class="card"><div class="k">Dias</div><div class="v">0</div></div>`;
+      }
+      const daysCount = list.length;
+      const totalKcal = list.reduce((a,d)=>a+d.kcal_active,0);
+      const totalSteps = list.reduce((a,d)=>a+d.steps,0);
+      const totalMin = list.reduce((a,d)=>a+d.min_active,0);
+      const avgWeight = list.reduce((a,d)=>a+d.wake_weight_kg,0)/daysCount;
+      return [
+        ["Dias", daysCount.toString()],
+        ["Kcal activas promedio", fmt(totalKcal/daysCount)],
+        ["Pasos promedio", fmt(totalSteps/daysCount)],
+        ["Min activos promedio", fmt(totalMin/daysCount)],
+        ["Peso promedio", `${fmt(avgWeight)} kg`]
+      ].map((x) => `<div class="card"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join("");
+    }
+
+    function render(){
+      const ordered = sortByDate(days);
+      const filtered = filterPeriod(ordered);
+      $("cards").innerHTML = cardsHTML(filtered);
+      $("tbody").innerHTML = filtered.length
+        ? filtered.map((d) => `<tr><td>${d.date || "-"}</td><td>${d.wake_weight_kg || "-"}</td><td>${fmt(d.kcal_active)}</td><td>${fmt(d.steps)}</td><td>${fmt(d.min_active)}</td><td>${d.events_count}</td><td>${d.wake_time || "-"}</td><td>${d.siesta_time || "-"}</td><td>${d.sleep_time || "-"}</td></tr>`).join("")
+        : `<tr><td colspan="9" class="tiny">Sin datos para el periodo seleccionado.</td></tr>`;
+      $("status").textContent = `Memorias cargadas: ${days.length} | Mostrando: ${filtered.length}`;
+    }
+
+    function toCSV(list){
+      const head = "date,wake_weight_kg,kcal_active,steps,min_active,events_count,wake_time,siesta_time,sleep_time";
+      const rows = list.map((d) => `${d.date},${d.wake_weight_kg},${d.kcal_active},${d.steps},${d.min_active},${d.events_count},${d.wake_time},${d.siesta_time},${d.sleep_time}`);
+      return [head, ...rows].join("\n");
+    }
+
+    function download(name, text, type){
+      const blob = new Blob([text], {type});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function loadFiles(fileList){
+      const parsed = [];
+      for(const f of fileList){
+        try{
+          const payload = JSON.parse(await f.text());
+          const day = parseDay(payload);
+          if (day.date) parsed.push(day);
+        } catch (_) {}
+      }
+      days = parsed;
+      render();
+    }
+
+    $("files").addEventListener("change", (e) => loadFiles(e.target.files || []));
+    $("period").addEventListener("change", render);
+    $("exportCsv").addEventListener("click", () => {
+      if (!days.length) return;
+      const ordered = sortByDate(days);
+      download("historial_maestro.csv", toCSV(ordered), "text/csv");
+    });
+
+    syncThemeButton();
+    render();
+  </script>
+  <script src="./pwa-register.js"></script>
+</body>
+</html>
+
