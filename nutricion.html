@@ -276,6 +276,10 @@
               <button id="exportAllCsv">Exportar historial CSV</button>
             </div>
             <div class="archive-actions">
+              <button id="shareAllJson">Compartir JSON</button>
+              <button id="shareAllCsv">Compartir CSV</button>
+            </div>
+            <div class="archive-actions">
               <button id="limpiar" class="danger">Reset Dia</button>
             </div>
             <small id="dataStatus" class="tiny">Al cerrar el dia: guarda en storage y descarga JSON de respaldo.</small>
@@ -583,6 +587,8 @@
       $("closeDay").textContent = txt("Cerrar dia", "Close day");
       $("exportAllJson").textContent = txt("Exportar historial JSON", "Export history JSON");
       $("exportAllCsv").textContent = txt("Exportar historial CSV", "Export history CSV");
+      $("shareAllJson").textContent = txt("Compartir JSON", "Share JSON");
+      $("shareAllCsv").textContent = txt("Compartir CSV", "Share CSV");
       $("limpiar").textContent = txt("Reset Dia", "Reset Day");
       $("refreshAct").title = txt("Actualizar kcal/peso desde actividades","Refresh kcal/weight from activities");
       syncThemeButton();
@@ -990,6 +996,23 @@
       URL.revokeObjectURL(url);
     }
 
+    async function shareOrDownloadText(name, text, mime){
+      const blob = new Blob([text], { type: mime });
+      try{
+        if (navigator.share && window.File){
+          const file = new File([blob], name, { type: mime });
+          if (!navigator.canShare || navigator.canShare({ files:[file] })){
+            await navigator.share({ title: name, files:[file] });
+            return true;
+          }
+        }
+      } catch (err){
+        if (err && err.name === "AbortError") return false;
+      }
+      downloadText(name, text, mime);
+      return false;
+    }
+
     function buildDayPayload(dayDate=todayStr(), closed=false){
       const {t} = totals();
       return {
@@ -1088,6 +1111,22 @@
       const csv = archiveCSV(days);
       downloadText(`historial_total_${todayStr()}.csv`, csv, "text/csv");
       setStatus("dataStatus", txt("Historial CSV exportado.","History CSV exported."));
+    }
+
+    async function shareAllHistoryJSON(){
+      const days = archiveList();
+      const out = { version:"1.0", exported_at:new Date().toISOString(), days };
+      const fileName = `historial_total_${todayStr()}.json`;
+      await shareOrDownloadText(fileName, JSON.stringify(out, null, 2), "application/json");
+      setStatus("dataStatus", txt("Historial JSON listo para compartir.","History JSON ready to share."));
+    }
+
+    async function shareAllHistoryCSV(){
+      const days = archiveList();
+      const csv = archiveCSV(days);
+      const fileName = `historial_total_${todayStr()}.csv`;
+      await shareOrDownloadText(fileName, csv, "text/csv");
+      setStatus("dataStatus", txt("Historial CSV listo para compartir.","History CSV ready to share."));
     }
 
     function tmb(){
@@ -1505,6 +1544,8 @@
     $("closeDay").onclick = closeDay;
     $("exportAllJson").onclick = exportAllHistoryJSON;
     $("exportAllCsv").onclick = exportAllHistoryCSV;
+    $("shareAllJson").onclick = shareAllHistoryJSON;
+    $("shareAllCsv").onclick = shareAllHistoryCSV;
     $("recargarDB").onclick = async () => { await loadDefaultExternalDB(); renderFoods(); renderAll(); };
     $("clearFilter").onclick = () => {
       buscar.value = "";

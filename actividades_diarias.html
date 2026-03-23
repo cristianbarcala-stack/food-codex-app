@@ -81,6 +81,8 @@
       <h2>Cierre Del Dia</h2>
       <div class="status-line">
         <button id="saveDay" class="btn btn-primary btn-inline">Guardar memoria del dia</button>
+        <button id="shareJson" class="btn btn-ghost btn-inline">Compartir JSON</button>
+        <button id="shareCsv" class="btn btn-ghost btn-inline">Compartir CSV</button>
       </div>
       <small class="tiny">Genera un JSON completo del dia. Nombre estandar: <b>actividades.export.json</b>.</small>
     </section>
@@ -199,6 +201,41 @@
       };
     }
 
+    function buildCsvPayload(){
+      const head = "date,activity_type,duration_min,kcal_active,steps,source,note";
+      const rows = events.map((e) => {
+        const note = String(e.note || "").replace(/"/g, "\"\"");
+        return [
+          e.date || "",
+          e.activity_type || "",
+          Number(e.duration_min) || 0,
+          Number(e.kcal_active) || 0,
+          Number(e.steps) || 0,
+          e.source || "",
+          `"${note}"`
+        ].join(",");
+      });
+      return [head, ...rows].join("\n");
+    }
+
+    async function shareOrDownload(filename, text, mime, successMsg){
+      const blob = new Blob([text], { type: mime });
+      try{
+        if (navigator.share && window.File){
+          const file = new File([blob], filename, { type: mime });
+          if (!navigator.canShare || navigator.canShare({ files: [file] })){
+            await navigator.share({ title: filename, files: [file] });
+            $("status").textContent = successMsg;
+            return;
+          }
+        }
+      } catch (err){
+        if (err && err.name === "AbortError") return;
+      }
+      download(filename, text, mime);
+      $("status").textContent = successMsg;
+    }
+
     async function saveDayMemory(){
       const payload = buildJsonPayload();
       const day = biometricos.date || today();
@@ -224,6 +261,21 @@
 
       download(fallback, jsonText, "application/json");
       $("status").textContent = `Memoria guardada: ${day}`;
+    }
+
+    async function shareDayJson(){
+      const payload = buildJsonPayload();
+      const day = biometricos.date || today();
+      const fileName = `actividades_${day}.json`;
+      const jsonText = JSON.stringify(payload, null, 2);
+      await shareOrDownload(fileName, jsonText, "application/json", `JSON listo: ${day}`);
+    }
+
+    async function shareDayCsv(){
+      const day = biometricos.date || today();
+      const fileName = `actividades_${day}.csv`;
+      const csvText = buildCsvPayload();
+      await shareOrDownload(fileName, csvText, "text/csv", `CSV listo: ${day}`);
     }
 
     function saveBiometricosForm(){
@@ -265,6 +317,8 @@
     $("add").onclick = add;
     $("saveBio").onclick = saveBiometricosForm;
     $("saveDay").onclick = saveDayMemory;
+    $("shareJson").onclick = shareDayJson;
+    $("shareCsv").onclick = shareDayCsv;
     saveUnified();
     syncThemeButton();
     render();
